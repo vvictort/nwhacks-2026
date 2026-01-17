@@ -1,109 +1,134 @@
 import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
 
 function App() {
-  const [count, setCount] = useState(0)
-  const [tasks, setTasks] = useState([
-    { id: 1, text: 'Learn Tailwind CSS', completed: false },
-    { id: 2, text: 'Build something awesome', completed: false },
-  ])
+  const [activeNav, setActiveNav] = useState('home')
 
-  const addTask = () => {
-    const newTask = { id: Date.now(), text: `Task ${tasks.length + 1}`, completed: false }
-    setTasks([...tasks, newTask])
-  }
-
-  const toggleTask = (id) => {
-    setTasks(tasks.map(task =>
-      task.id === id ? { ...task, completed: !task.completed } : task
-    ))
-  }
+  const navItems = [
+    { id: 'home', label: 'Home' },
+    { id: 'about', label: 'About' },
+    { id: 'services', label: 'Services' },
+    { id: 'portfolio', label: 'Portfolio' },
+    { id: 'contact', label: 'Contact' }
+  ]
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900">
-      <div className="container mx-auto px-4 py-16">
-        {/* Header */}
-        <div className="text-center mb-12">
-          <div className="flex justify-center items-center gap-8 mb-8">
-            <img src={viteLogo} className="h-24 w-24 hover:scale-110 transition-transform duration-300" alt="Vite logo" />
-            <img src={reactLogo} className="h-24 w-24 animate-spin-slow hover:animate-spin" alt="React logo" />
+    <div className="min-h-screen bg-neo-bg-100">
+      {/* Navbar */}
+      <nav className="fixed top-0 left-0 right-0 z-50 pt-6 px-4">
+        <div className="max-w-4xl mx-auto">
+          <div className="bg-neo-bg-100 rounded-full shadow-neo px-8 py-4">
+            <ul className="flex items-center justify-center gap-2">
+              {navItems.map((item) => (
+                <li key={item.id}>
+                  <button
+                    onClick={() => setActiveNav(item.id)}
+                    className={`
+                      px-6 py-2 rounded-full font-medium transition-all duration-200
+                      ${activeNav === item.id
+                        ? 'bg-neo-primary-500 text-white shadow-lg scale-105'
+                        : 'bg-white/60 text-neo-bg-700 hover:bg-white/80 hover:scale-110 hover:shadow-xl hover:-translate-y-1 hover:text-neo-primary-700'
+                      }
+                    `}
+                  >
+                    {item.label}
+                  </button>
+                </li>
+              ))}
+            </ul>
           </div>
-          <h1 className="text-6xl font-bold bg-gradient-to-r from-cyan-400 via-blue-400 to-purple-400 bg-clip-text text-transparent mb-4">
-            Tailwind CSS v3 Demo
-          </h1>
-          <p className="text-xl text-gray-300">A fully styled interactive app</p>
         </div>
+      </nav>
 
-        {/* Counter Card */}
-        <div className="max-w-2xl mx-auto mb-8">
-          <div className="bg-white/10 backdrop-blur-lg rounded-2xl shadow-2xl p-8 border border-white/20">
-            <h2 className="text-3xl font-bold text-white mb-4">Counter Demo</h2>
-            <div className="flex items-center justify-between">
-              <button
-                onClick={() => setCount(count - 1)}
-                className="bg-red-500 hover:bg-red-600 text-white font-bold py-3 px-6 rounded-lg shadow-lg transform hover:scale-105 transition-all duration-200"
-              >
-                Decrease
-              </button>
-              <div className="text-5xl font-bold text-white bg-gradient-to-r from-pink-500 to-yellow-500 bg-clip-text text-transparent">
-                {count}
+      {/* Main Content */}
+      <main className="pt-32 px-4 pb-16">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-16">
+            <h1 className="text-6xl font-bold text-neo-primary-800 mb-6">
+              Welcome to Neumorphism
+            </h1>
+            <p className="text-xl text-neo-bg-700 mb-8">
+              A modern design approach with soft, extruded shapes
+            </p>
+          </div>
+
+          {/* Feature Cards Grid */}
+          <div className="grid md:grid-cols-3 gap-8 mb-16">
+            {/* Card 1 */}
+            <div className="bg-neo-bg-100 rounded-3xl shadow-neo p-8 hover:shadow-neo-lg transition-all duration-300">
+              <div className="bg-neo-bg-100 rounded-full shadow-neo-inset w-16 h-16 flex items-center justify-center mb-6">
+                <span className="text-3xl">🎨</span>
               </div>
-              <button
-                onClick={() => setCount(count + 1)}
-                className="bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-6 rounded-lg shadow-lg transform hover:scale-105 transition-all duration-200"
-              >
-                Increase
-              </button>
+              <h3 className="text-2xl font-bold text-neo-primary-700 mb-4">Design</h3>
+              <p className="text-neo-bg-700">
+                Beautiful neumorphic interfaces with soft shadows and subtle depth effects.
+              </p>
+            </div>
+
+            {/* Card 2 */}
+            <div className="bg-neo-bg-100 rounded-3xl shadow-neo p-8 hover:shadow-neo-lg transition-all duration-300">
+              <div className="bg-neo-bg-100 rounded-full shadow-neo-inset w-16 h-16 flex items-center justify-center mb-6">
+                <span className="text-3xl">⚡</span>
+              </div>
+              <h3 className="text-2xl font-bold text-neo-primary-700 mb-4">Performance</h3>
+              <p className="text-neo-bg-700">
+                Fast and responsive components built with modern web technologies.
+              </p>
+            </div>
+
+            {/* Card 3 */}
+            <div className="bg-neo-bg-100 rounded-3xl shadow-neo p-8 hover:shadow-neo-lg transition-all duration-300">
+              <div className="bg-neo-bg-100 rounded-full shadow-neo-inset w-16 h-16 flex items-center justify-center mb-6">
+                <span className="text-3xl">🚀</span>
+              </div>
+              <h3 className="text-2xl font-bold text-neo-primary-700 mb-4">Innovation</h3>
+              <p className="text-neo-bg-700">
+                Cutting-edge features that push the boundaries of user experience.
+              </p>
             </div>
           </div>
-        </div>
 
-        {/* Task List Card */}
-        <div className="max-w-2xl mx-auto">
-          <div className="bg-white/10 backdrop-blur-lg rounded-2xl shadow-2xl p-8 border border-white/20">
-            <div className="flex justify-between items-center mb-6">
-              <h2 className="text-3xl font-bold text-white">Task List</h2>
-              <button
-                onClick={addTask}
-                className="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg shadow-md transform hover:scale-105 transition-all duration-200 flex items-center gap-2"
-              >
-                <span className="text-xl">+</span> Add Task
-              </button>
-            </div>
-            <div className="space-y-3">
-              {tasks.map(task => (
-                <div
-                  key={task.id}
-                  onClick={() => toggleTask(task.id)}
-                  className={`p-4 rounded-lg cursor-pointer transition-all duration-200 ${task.completed
-                      ? 'bg-green-500/20 border-2 border-green-500'
-                      : 'bg-white/5 border-2 border-white/20 hover:bg-white/10'
-                    }`}
-                >
-                  <div className="flex items-center gap-3">
-                    <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${task.completed ? 'bg-green-500 border-green-500' : 'border-white/40'
-                      }`}>
-                      {task.completed && <span className="text-white font-bold">✓</span>}
-                    </div>
-                    <span className={`text-lg ${task.completed ? 'line-through text-gray-400' : 'text-white'
-                      }`}>
-                      {task.text}
-                    </span>
+          {/* Interactive Section */}
+          <div className="max-w-2xl mx-auto">
+            <div className="bg-neo-bg-100 rounded-3xl shadow-neo p-10">
+              <h2 className="text-4xl font-bold text-neo-primary-800 mb-8 text-center">
+                Interactive Elements
+              </h2>
+
+              {/* Button Group */}
+              <div className="flex flex-wrap justify-center gap-4 mb-8">
+                <button className="bg-neo-bg-100 shadow-neo hover:shadow-neo-lg active:shadow-neo-inset px-8 py-4 rounded-full font-semibold text-neo-primary-700 transition-all duration-200">
+                  Button
+                </button>
+                <button className="bg-neo-primary-600 shadow-neo hover:shadow-neo-lg px-8 py-4 rounded-full font-semibold text-white transition-all duration-200">
+                  Primary
+                </button>
+                <button className="bg-neo-accent-500 shadow-neo hover:shadow-neo-lg px-8 py-4 rounded-full font-semibold text-white transition-all duration-200">
+                  Accent
+                </button>
+              </div>
+
+              {/* Input Field */}
+              <div className="mb-6">
+                <input
+                  type="text"
+                  placeholder="Enter something..."
+                  className="w-full bg-neo-bg-100 shadow-neo-inset rounded-full px-6 py-4 text-neo-bg-800 placeholder:text-neo-bg-500 focus:outline-none focus:ring-2 focus:ring-neo-primary-400 transition-all"
+                />
+              </div>
+
+              {/* Toggle Switches */}
+              <div className="flex justify-center gap-8">
+                <div className="bg-neo-bg-100 shadow-neo-inset rounded-full px-6 py-3 flex items-center gap-3">
+                  <span className="text-neo-bg-700 font-medium">Dark Mode</span>
+                  <div className="w-12 h-6 bg-neo-bg-100 shadow-neo-inset rounded-full relative cursor-pointer">
+                    <div className="absolute top-0.5 left-0.5 w-5 h-5 bg-neo-primary-600 shadow-neo-sm rounded-full transition-transform"></div>
                   </div>
                 </div>
-              ))}
+              </div>
             </div>
           </div>
         </div>
-
-        {/* Footer */}
-        <div className="text-center mt-12">
-          <p className="text-gray-400 text-sm">
-            Built with <span className="text-red-500">♥</span> using Vite + React + Tailwind CSS v3
-          </p>
-        </div>
-      </div>
+      </main>
     </div>
   )
 }
