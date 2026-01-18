@@ -2,6 +2,7 @@
 import { Router } from "express";
 import { authenticateFirebaseToken } from "../middleware/authMiddleware";
 import { AuthRequest } from "../types/auth-request";
+import { querySnowflake } from "../config/snowflake";
 
 const router = Router();
 
