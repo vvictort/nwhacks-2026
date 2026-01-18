@@ -1,5 +1,5 @@
 import type { NextFunction, Response } from 'express';
-import { auth } from '../config/firebase.js'
+import { auth } from '../config/firebase'
 import type { AuthRequest } from '../types/auth-request';
 
 /**
