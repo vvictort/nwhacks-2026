@@ -1,4 +1,4 @@
-import React, { useState, useRef, useCallback } from "react";
+import React, { useState, useRef, useCallback, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import NeuCard from "../components/atoms/NeuCard";
 import NeuButton from "../components/atoms/NeuButton";
@@ -66,6 +66,31 @@ const Donate = () => {
   const [isDetecting, setIsDetecting] = useState(false);
   const [showCamera, setShowCamera] = useState(false);
   const [cameraStream, setCameraStream] = useState(null);
+
+  // Cleanup camera stream on unmount or when navigating away
+  useEffect(() => {
+    return () => {
+      if (cameraStream) {
+        cameraStream.getTracks().forEach(track => track.stop());
+      }
+    };
+  }, [cameraStream]);
+
+  // Also stop camera when page visibility changes (user switches tabs)
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.hidden && cameraStream) {
+        cameraStream.getTracks().forEach(track => track.stop());
+        setCameraStream(null);
+        setShowCamera(false);
+      }
+    };
+
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    return () => {
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+    };
+  }, [cameraStream]);
 
 
   const categories = [
