@@ -1,6 +1,6 @@
 import type { NextFunction, Response } from 'express';
-import { auth } from '../config/firebase.js'; // TODO: adjust path once merged
-import type { AuthRequest } from '../types/auth-request.js';
+import { auth } from '../firebase.js'
+import type { AuthRequest } from '../types/auth-request';
 
 /**
  * Middleware to authenticate Firebase token from Authorization header.

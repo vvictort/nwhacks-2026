@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { authenticateFirebaseToken } from "../middleware/authMiddleware.js";
+import { authenticateFirebaseToken } from "../middleware/authMiddleware";
 import { AuthRequest } from "../types/auth-request";
 
 const router = Router();
