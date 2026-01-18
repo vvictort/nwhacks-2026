@@ -212,7 +212,7 @@ const Donate = () => {
         </p>
       </motion.div>
 
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={handleSubmit} noValidate>
         <NeuCard className="p-8 space-y-8">
           {/* Toy Name */}
           <div>
@@ -360,8 +360,8 @@ const Donate = () => {
                     setErrors((prev) => ({ ...prev, category: null }));
                   }}
                   className={`p-3 rounded-xl text-sm font-medium transition-all duration-200 ${formData.category === cat
-                      ? "bg-neo-primary-500 text-white shadow-lg"
-                      : "bg-neo-bg-100 text-neo-bg-700 shadow-neo-inset hover:bg-neo-bg-200"
+                    ? "bg-neo-primary-500 text-white shadow-lg"
+                    : "bg-neo-bg-100 text-neo-bg-700 shadow-neo-inset hover:bg-neo-bg-200"
                     }`}>
                   {cat}
                 </button>
@@ -383,8 +383,8 @@ const Donate = () => {
                     setErrors((prev) => ({ ...prev, condition: null }));
                   }}
                   className={`flex-1 p-4 rounded-xl text-center transition-all duration-200 ${formData.condition === cond.value
-                      ? "bg-neo-primary-500 text-white shadow-lg"
-                      : "bg-neo-bg-100 text-neo-bg-700 shadow-neo-inset hover:bg-neo-bg-200"
+                    ? "bg-neo-primary-500 text-white shadow-lg"
+                    : "bg-neo-bg-100 text-neo-bg-700 shadow-neo-inset hover:bg-neo-bg-200"
                     }`}>
                   <span className="text-2xl block mb-1">{cond.emoji}</span>
                   <span className="text-sm font-medium">{cond.label}</span>

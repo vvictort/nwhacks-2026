@@ -10,7 +10,7 @@ const Contact = () => {
       <div className="grid md:grid-cols-3 gap-8">
         <div className="md:col-span-2">
           <NeuCard title="Send us a message">
-            <form className="flex flex-col gap-6">
+            <form noValidate className="flex flex-col gap-6">
               <div className="grid md:grid-cols-2 gap-6">
                 <NeuInput label="Name" placeholder="Your Name" maxLength={100} />
                 <NeuInput label="Email" type="email" placeholder="john@example.com" maxLength={255} />
