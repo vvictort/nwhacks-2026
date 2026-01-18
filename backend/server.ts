@@ -8,7 +8,6 @@ import geminiRouter from "./routes/gemini";
 import toysRouter from "./src/routes/toys";
 import userRouter from "./src/routes/user";
 
-const app = express();
 const port = 3000;
 
 async function main() {
