@@ -170,18 +170,18 @@ const Home = () => {
           <div className="flip-card h-72">
             <div className="flip-card-inner">
               <div className="flip-card-front">
-                <NeuCard className="text-center flex flex-col items-center h-full justify-center">
-                  <div className="w-16 h-16 rounded-full bg-neo-bg-100 shadow-neo-inset flex items-center justify-center mb-6 text-3xl">
+                <NeuCard className="text-center flex flex-col items-center h-full justify-center p-4">
+                  <div className="w-20 h-20 rounded-full bg-neo-bg-100 shadow-neo-inset flex items-center justify-center mb-4 text-5xl">
                     📸
                   </div>
-                  <h3 className="text-xl font-extrabold text-neo-bg-800 mb-2">1. List It</h3>
-                  <p className="text-neo-bg-600 italic">Snap a photo and add a description.</p>
+                  <h3 className="text-2xl font-extrabold text-neo-bg-800 mb-3">1. List It</h3>
+                  <p className="text-neo-bg-600 italic text-base">Snap a photo and add a description.</p>
                 </NeuCard>
               </div>
               <div className="flip-card-back">
-                <NeuCard className="text-center flex flex-col items-center h-full justify-center bg-neo-primary-100">
-                  <h3 className="text-lg font-bold text-neo-primary-800 mb-3">More About Listing</h3>
-                  <p className="text-neo-primary-700 text-sm px-4">
+                <NeuCard className="text-center flex flex-col items-center h-full justify-center bg-neo-primary-100 p-6">
+                  <h3 className="text-xl font-bold text-neo-primary-800 mb-4">More About Listing</h3>
+                  <p className="text-neo-primary-700 text-base px-2">
                     Take a clear photo of your toy, write a short description about its condition, and set it live.
                     Other families can browse and request it instantly. It's completely free!
                   </p>
@@ -194,18 +194,18 @@ const Home = () => {
           <div className="flip-card h-72">
             <div className="flip-card-inner">
               <div className="flip-card-front">
-                <NeuCard className="text-center flex flex-col items-center h-full justify-center">
-                  <div className="w-16 h-16 rounded-full bg-neo-bg-100 shadow-neo-inset flex items-center justify-center mb-6 text-3xl">
+                <NeuCard className="text-center flex flex-col items-center h-full justify-center p-4">
+                  <div className="w-20 h-20 rounded-full bg-neo-bg-100 shadow-neo-inset flex items-center justify-center mb-4 text-5xl">
                     📦
                   </div>
-                  <h3 className="text-xl font-extrabold text-neo-bg-800 mb-2">2. Ship It</h3>
-                  <p className="text-neo-bg-600 italic">Connect and ship with discounted labels.</p>
+                  <h3 className="text-2xl font-extrabold text-neo-bg-800 mb-3">2. Ship It</h3>
+                  <p className="text-neo-bg-600 italic text-base">Connect and ship with discounted labels.</p>
                 </NeuCard>
               </div>
               <div className="flip-card-back">
-                <NeuCard className="text-center flex flex-col items-center h-full justify-center bg-neo-accent-100">
-                  <h3 className="text-lg font-bold text-neo-accent-800 mb-3">More About Shipping</h3>
-                  <p className="text-neo-accent-700 text-sm px-4">
+                <NeuCard className="text-center flex flex-col items-center h-full justify-center bg-neo-accent-100 p-6">
+                  <h3 className="text-xl font-bold text-neo-accent-800 mb-4">More About Shipping</h3>
+                  <p className="text-neo-accent-700 text-base px-2">
                     Once a family requests your toy, we'll provide a discounted shipping label. Pack it up with care and
                     drop it off at any carrier location. Simple and affordable!
                   </p>
@@ -218,18 +218,18 @@ const Home = () => {
           <div className="flip-card h-72">
             <div className="flip-card-inner">
               <div className="flip-card-front">
-                <NeuCard className="text-center flex flex-col items-center h-full justify-center">
-                  <div className="w-16 h-16 rounded-full bg-neo-bg-100 shadow-neo-inset flex items-center justify-center mb-6 text-3xl">
+                <NeuCard className="text-center flex flex-col items-center h-full justify-center p-4">
+                  <div className="w-20 h-20 rounded-full bg-neo-bg-100 shadow-neo-inset flex items-center justify-center mb-4 text-5xl">
                     😊
                   </div>
-                  <h3 className="text-xl font-extrabold text-neo-bg-800 mb-2">3. Enjoy It</h3>
-                  <p className="text-neo-bg-600 italic">Bring smiles and reduce waste.</p>
+                  <h3 className="text-2xl font-extrabold text-neo-bg-800 mb-3">3. Enjoy It</h3>
+                  <p className="text-neo-bg-600 italic text-base">Bring smiles and reduce waste.</p>
                 </NeuCard>
               </div>
               <div className="flip-card-back">
-                <NeuCard className="text-center flex flex-col items-center h-full justify-center bg-neo-bg-200">
-                  <h3 className="text-lg font-bold text-neo-bg-800 mb-3">More About Impact</h3>
-                  <p className="text-neo-bg-700 text-sm px-4">
+                <NeuCard className="text-center flex flex-col items-center h-full justify-center bg-neo-bg-200 p-6">
+                  <h3 className="text-xl font-bold text-neo-bg-800 mb-4">More About Impact</h3>
+                  <p className="text-neo-bg-700 text-base px-2">
                     Your pre-loved toy finds a new home where it will be cherished again. You've made a child happy and
                     helped reduce landfill waste. Win-win!
                   </p>

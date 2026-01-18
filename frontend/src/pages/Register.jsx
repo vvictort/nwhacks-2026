@@ -222,7 +222,7 @@ const Register = () => {
             )}
           </AnimatePresence>
 
-          <form onSubmit={handleSubmit} className="flex flex-col gap-6 text-left">
+          <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-6 text-left">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <NeuInput

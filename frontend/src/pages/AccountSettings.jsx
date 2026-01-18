@@ -52,7 +52,7 @@ const AccountSettings = () => {
                 {/* Profile Information */}
                 <NeuCard className="mb-6">
                     <h2 className="text-2xl font-bold text-neo-primary-700 mb-6">Profile Information</h2>
-                    <form onSubmit={handleSave} className="space-y-6">
+                    <form onSubmit={handleSave} noValidate className="space-y-6">
                         <NeuInput
                             label="Display Name"
                             name="displayName"
