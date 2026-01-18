@@ -1,6 +1,7 @@
 services:
   frontend:
     build: ./frontend
+    restart: always
     ports:
       - "5173:5173"
     env_file:
@@ -8,6 +9,7 @@ services:
 
   backend:
     build: ./backend
+    restart: always
     ports:
       - "3000:3000"
     env_file:

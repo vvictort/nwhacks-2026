@@ -26,7 +26,8 @@ const ToyCard = ({ toy, onClaimed }) => {
 
             try {
                 setIsLoadingImages(true);
-                const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+                const API_BASE_URL = import.meta.env.VITE_ENV == "prod" ? import.meta.env.VITE_PROD_URL : import.meta.env.VITE_API_URL;
+
                 const response = await fetch(`${API_BASE_URL}/toys/${encodeURIComponent(toy.toyName)}/images`, {
                     method: 'GET',
                     headers: {
