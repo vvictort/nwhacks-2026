@@ -26,11 +26,14 @@ const Dashboard = () => {
     : "Recently joined";
 
   // Use real stats from backend, with fallbacks
+  // For mock users, use the dedicated stat fields
   const userStats = {
-    toysForwarded: userProfile?.donatedToys?.length || 0,
-    toysReceived: userProfile?.wishList?.length || 0,
-    familiesHelped: userProfile?.donatedToys?.length || 0, // approximation
-    wasteReduced: `${((userProfile?.donatedToys?.length || 0) * 0.2).toFixed(1)} kg`,
+    toysForwarded: userProfile?.toysForwardedCount || userProfile?.donatedToys?.length || 0,
+    toysReceived: userProfile?.toysReceivedCount || userProfile?.wishList?.length || 0,
+    familiesHelped: userProfile?.familiesHelpedCount || userProfile?.donatedToys?.length || 0,
+    wasteReduced: userProfile?.wasteReducedKg
+      ? `${userProfile.wasteReducedKg} kg`
+      : `${((userProfile?.donatedToys?.length || 0) * 0.2).toFixed(1)} kg`,
   };
 
   // Check if this is a mock/demo user
@@ -40,43 +43,53 @@ const Dashboard = () => {
   const mockToys = [
     {
       id: 'mock-1',
-      name: 'Giant Inflatable T-Rex Costume (Still Roars!)',
-      imageUrl: 'https://images.unsplash.com/photo-1566576912321-d58ddd7a6088?w=400',
+      toyName: 'Giant Inflatable T-Rex Costume (Still Roars!)',
+      description: 'Life-sized inflatable T-Rex costume that actually roars when you walk. Perfect for parties!',
+      category: 'outdoor',
+      ageRange: '5-7',
       status: 'completed',
       createdAt: '2025-12-15T10:00:00Z',
-      condition: 'Good',
+      condition: 'good',
     },
     {
       id: 'mock-2',
-      name: 'Vintage 1985 Optimus Prime (Battle Damaged Edition)',
-      imageUrl: 'https://images.unsplash.com/photo-1558679908-541bcf1249ff?w=400',
+      toyName: 'Vintage 1985 Optimus Prime (Battle Damaged Edition)',
+      description: 'Original G1 Transformers Optimus Prime. Some battle damage adds character!',
+      category: 'vehicles',
+      ageRange: '8-12',
       status: 'completed',
       createdAt: '2025-11-20T14:30:00Z',
-      condition: 'Fair',
+      condition: 'fair',
     },
     {
       id: 'mock-3',
-      name: 'Haunted Furby That Speaks in Riddles',
-      imageUrl: 'https://images.unsplash.com/photo-1530982937726-04fff5c4e1ae?w=400',
+      toyName: 'Haunted Furby That Speaks in Riddles',
+      description: 'This Furby has developed its own personality. Speaks only in cryptic riddles. Batteries included.',
+      category: 'electronic',
+      ageRange: '5-7',
       status: 'available',
       createdAt: '2025-10-31T00:00:00Z',
-      condition: 'Mysterious',
+      condition: 'used',
     },
     {
       id: 'mock-4',
-      name: 'NERF Arsenal Collection (47 Blasters)',
-      imageUrl: 'https://images.unsplash.com/photo-1596461404969-9ae70f2830c1?w=400',
+      toyName: 'NERF Arsenal Collection (47 Blasters)',
+      description: 'Complete NERF collection with 47 blasters, thousands of darts, and tactical gear.',
+      category: 'outdoor',
+      ageRange: '8-12',
       status: 'reserved',
       createdAt: '2025-09-05T08:15:00Z',
-      condition: 'Like New',
+      condition: 'excellent',
     },
     {
       id: 'mock-5',
-      name: 'Life-Size Cardboard Millennium Falcon',
-      imageUrl: 'https://images.unsplash.com/photo-1608889825103-eb5ed706fc64?w=400',
+      toyName: 'Life-Size Cardboard Millennium Falcon',
+      description: 'Hand-crafted cardboard Millennium Falcon. Fits 2 kids in the cockpit!',
+      category: 'building_blocks',
+      ageRange: '5-7',
       status: 'completed',
       createdAt: '2025-08-01T16:45:00Z',
-      condition: 'Galactic',
+      condition: 'good',
     },
   ];
 

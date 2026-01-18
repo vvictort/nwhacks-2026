@@ -28,6 +28,11 @@ export const AuthProvider = ({ children }) => {
           displayName: "Captain Toy Tornado 🌪️",
           phoneNumber: "+1-800-TOY-HERO",
           points: 42069,
+          // Stats for dashboard display
+          toysForwardedCount: 127,
+          toysReceivedCount: 94,
+          familiesHelpedCount: 156,
+          wasteReducedKg: 25.4,
           donatedToys: [
             "Giant Inflatable T-Rex Costume (Still Roars!)",
             "Vintage 1985 Optimus Prime (Battle Damaged Edition)",
