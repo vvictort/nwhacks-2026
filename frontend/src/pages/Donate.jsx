@@ -24,7 +24,7 @@ const Donate = () => {
   const [images, setImages] = useState([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errors, setErrors] = useState({});
-  const [showDetectButton, setShowDetectButton] = useState(false);
+  const [setShowDetectButton] = useState(false);
   const [isDetecting, setIsDetecting] = useState(false);
 
 
@@ -54,7 +54,7 @@ const Donate = () => {
     { value: "All ages", label: "All ages", emoji: "👨" },
   ];
 
-  const acceptedFormats = ".jpeg";
+  const acceptedFormats = "image/jpeg,image/jpg,.jpg,.jpeg";
 
   const handleDetectCategories = async () => {
     if (!images.length || !formData.description.trim()) {
@@ -148,7 +148,14 @@ const Donate = () => {
 
   const handleImageUpload = (e) => {
     const files = Array.from(e.target.files);
-    const validFiles = files.filter((file) => file.type.startsWith("image/"));
+    const validFiles = files.filter((file) =>
+      file.type === "image/jpeg" || file.type === "image/jpg"
+    );
+
+    if (validFiles.length !== files.length) {
+      setErrors((prev) => ({ ...prev, images: "Only JPG/JPEG files are allowed" }));
+      return;
+    }
 
     if (validFiles.length + images.length > 5) {
       setErrors((prev) => ({ ...prev, images: "Maximum 5 images allowed" }));
@@ -308,7 +315,7 @@ const Donate = () => {
               </NeuButton>
             </div>
             {errors.images && <p className="text-red-500 text-sm mt-2 ml-4">{errors.images}</p>}
-            <p className="text-neo-bg-400 text-xs mt-2 ml-4">Accepted formats: JPG, PNG, WebP, HEIC</p>
+            <p className="text-neo-bg-400 text-xs mt-2 ml-4">Accepted formats: JPG</p>
           </div>
 
           {/* AI Detection Button - NEO PURPLE THEME */}
