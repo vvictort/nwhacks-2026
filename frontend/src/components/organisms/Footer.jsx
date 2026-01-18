@@ -120,7 +120,7 @@ const Footer = () => {
             <motion.div
               className="flex flex-col md:flex-row justify-between items-center gap-4"
               variants={itemVariants}>
-              <p className="text-neo-bg-400 text-xs">© {currentYear} ToyShare. Spreading Joy Worldwide.</p>
+              <p className="text-neo-bg-400 text-xs">© {currentYear} ToyJoy. Spreading Joy Worldwide.</p>
 
               {/* Social Links */}
               <div className="flex items-center gap-2">
