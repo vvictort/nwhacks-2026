@@ -1,16 +1,16 @@
 import express from 'express';
-import { GoogleGenAI } from '@google/genai';    
+import { GoogleGenAI } from '@google/genai';
 import dotenv from 'dotenv';
 import path from 'path';
 
-dotenv.config({ path: path.join(__dirname, '../../.env') });
+dotenv.config({ path: path.join(__dirname, '../.env') });
 
 const router = express.Router();
 const MODEL = "gemini-3-flash-preview";
 const KEY = process.env.GEMINI_API_KEY || '';
 const ai = new GoogleGenAI({ apiKey: KEY });
 
-const PROMPT = 
+const PROMPT =
 `You are a toy classifier. Analyze the provided image and text description of a children's toy. Output ONLY valid JSON with these exact keys, selecting ONE option per category from the allowed values. Do not add extra fields, explanations, or markdown.
 
 Rules:
@@ -35,7 +35,7 @@ Example output:
 router.post('/classify', express.json({ limit: '20mb' }), async (req, res) => {
   try {
     const { image_base64, text } = req.body;
-    
+
     if (!image_base64 || !text) {
       return res.status(400).json({ error: 'Need image_base64 and text' });
     }
@@ -60,7 +60,7 @@ router.post('/classify', express.json({ limit: '20mb' }), async (req, res) => {
     }
     const json = JSON.parse(text_content);
     res.json(json);
-    
+
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Unknown error';
     res.status(500).json({ error: message });
