@@ -1,11 +1,17 @@
 import express from 'express';
-import { GoogleGenAI } from '@google/genai';
+import { GoogleGenAI } from '@google/genai';    
+import dotenv from 'dotenv';
+import path from 'path';
+
+dotenv.config({ path: path.join(__dirname, '../../.env') });
 
 const router = express.Router();
-const MODEL = "gemini-1.5-flash";
-const ai = new GoogleGenAI({});
+const MODEL = "gemini-3-flash-preview";
+const KEY = process.env.GEMINI_API_KEY || '';
+const ai = new GoogleGenAI({ apiKey: KEY });
 
-router.post('/gemini', async (req, res) => {
+// fetch generated responses from Gemini API
+router.get('/', async (req, res) => {
   try {
     const response = await ai.models.generateContent({
     model: MODEL,
@@ -18,19 +24,31 @@ router.post('/gemini', async (req, res) => {
   }
 });
 
-export default router;
+// debugging: lists the available models from Gemini API
+router.get('/models', async (req, res) => {
+  try {
+    const response = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models?key=${KEY}`
+    );
+    const data = await response.json();
+    res.json(data);
+  } catch (error: any) {
+    res.status(500).json({ error: error.message });
+  }
+});
 
-// import { GoogleGenAI } from "@google/genai";
 
-// // The client gets the API key from the environment variable `GEMINI_API_KEY`.
-// const ai = new GoogleGenAI({});
-
-// async function main() {
-//   const response = await ai.models.generateContent({
-//     model: "gemini-3-flash-preview",
+// router.post('/', async (req, res) => {
+//   try {
+//     const response = await ai.models.generateContent({
+//     model: MODEL,
 //     contents: "Explain how AI works in a few words",
 //   });
 //   console.log(response.text);
-// }
+//     res.json({ text: response.text });
+//   } catch (error: any) {
+//     res.status(500).json({ error: error.message });
+//   }
+// });
 
-// main();
+export default router;
