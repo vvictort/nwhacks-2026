@@ -54,7 +54,7 @@ const Donate = () => {
     { value: "All ages", label: "All ages", emoji: "👨" },
   ];
 
-  const acceptedFormats = "image/jpeg,image/jpg,.jpg,.jpeg";
+  const acceptedFormats = "image/jpeg";
 
   const handleDetectCategories = async () => {
     if (!images.length || !formData.description.trim()) {
@@ -149,11 +149,11 @@ const Donate = () => {
   const handleImageUpload = (e) => {
     const files = Array.from(e.target.files);
     const validFiles = files.filter((file) =>
-      file.type === "image/jpeg" || file.type === "image/jpg"
+      file.type === "image/jpeg"
     );
 
     if (validFiles.length !== files.length) {
-      setErrors((prev) => ({ ...prev, images: "Only JPG/JPEG files are allowed" }));
+      setErrors((prev) => ({ ...prev, images: "Only JPEG files are allowed" }));
       return;
     }
 
@@ -315,7 +315,7 @@ const Donate = () => {
               </NeuButton>
             </div>
             {errors.images && <p className="text-red-500 text-sm mt-2 ml-4">{errors.images}</p>}
-            <p className="text-neo-bg-400 text-xs mt-2 ml-4">Accepted formats: JPG</p>
+            <p className="text-neo-bg-400 text-xs mt-2 ml-4">Accepted formats: JPEG</p>
           </div>
 
           {/* AI Detection Button - NEO PURPLE THEME */}
