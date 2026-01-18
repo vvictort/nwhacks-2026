@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+// eslint-disable-next-line no-unused-vars
 import { motion, AnimatePresence } from "framer-motion";
 import NeuCard from "../components/atoms/NeuCard";
 import NeuInput from "../components/atoms/NeuInput";
@@ -75,6 +76,7 @@ const Login = () => {
       }
     } catch (error) {
       setErrors({ submit: "An error occurred. Please try again." });
+      console.log(error);
     } finally {
       setIsLoading(false);
     }
@@ -86,32 +88,27 @@ const Login = () => {
       <motion.div
         className="absolute -top-5 -right-5 text-6xl opacity-20"
         animate={{ rotate: [0, 360] }}
-        transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-      >
+        transition={{ duration: 20, repeat: Infinity, ease: "linear" }}>
         🎪
       </motion.div>
       <motion.div
         className="absolute bottom-20 -left-10 text-5xl opacity-20"
         animate={{ y: [0, -20, 0], rotate: [0, 10, 0] }}
-        transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-      >
+        transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}>
         🎠
       </motion.div>
 
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6 }}
-      >
+      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
         <NeuCard className="text-center relative overflow-visible">
           <motion.div
             className="w-20 h-20 mx-auto mb-4 rounded-3xl bg-gradient-to-br from-yellow-400 via-orange-400 to-pink-500 flex items-center justify-center shadow-2xl"
             animate={{ rotate: [0, 5, -5, 0], scale: [1, 1.05, 1] }}
-            transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
-          >
+            transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}>
             <span className="text-4xl">🎁</span>
           </motion.div>
-          <h1 className="text-4xl font-bold bg-gradient-to-r from-purple-600 via-pink-500 to-orange-500 bg-clip-text text-transparent mb-2">Welcome Back! 👋</h1>
+          <h1 className="text-4xl font-bold bg-gradient-to-r from-purple-600 via-pink-500 to-orange-500 bg-clip-text text-transparent mb-2">
+            Welcome Back! 👋
+          </h1>
           <p className="text-neo-bg-600 mb-8 text-lg">Ready to spread more joy? Let's go! 🚀</p>
 
           {/* Error Message */}
@@ -121,13 +118,11 @@ const Login = () => {
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.9 }}
-                className="mb-6 p-4 bg-gradient-to-r from-red-50 to-orange-50 rounded-3xl flex items-center gap-3 shadow-lg"
-              >
+                className="mb-6 p-4 bg-gradient-to-r from-red-50 to-orange-50 rounded-3xl flex items-center gap-3 shadow-lg">
                 <motion.span
                   className="text-3xl"
                   animate={{ rotate: [-10, 10, -10] }}
-                  transition={{ duration: 0.5, repeat: 2 }}
-                >
+                  transition={{ duration: 0.5, repeat: 2 }}>
                   🤔
                 </motion.span>
                 <p className="text-red-800 text-sm text-left font-medium">{errors.submit}</p>
@@ -152,8 +147,7 @@ const Login = () => {
                     initial={{ opacity: 0, height: 0 }}
                     animate={{ opacity: 1, height: "auto" }}
                     exit={{ opacity: 0, height: 0 }}
-                    className="text-red-500 text-xs mt-1 ml-4"
-                  >
+                    className="text-red-500 text-xs mt-1 ml-4">
                     {errors.email}
                   </motion.p>
                 )}
@@ -175,8 +169,7 @@ const Login = () => {
                     initial={{ opacity: 0, height: 0 }}
                     animate={{ opacity: 1, height: "auto" }}
                     exit={{ opacity: 0, height: 0 }}
-                    className="text-red-500 text-xs mt-1 ml-4"
-                  >
+                    className="text-red-500 text-xs mt-1 ml-4">
                     {errors.password}
                   </motion.p>
                 )}
@@ -190,23 +183,18 @@ const Login = () => {
               </div>
             </div>
 
-            <motion.div
-              whileHover={{ scale: isLoading ? 1 : 1.02 }}
-              whileTap={{ scale: isLoading ? 1 : 0.98 }}
-            >
+            <motion.div whileHover={{ scale: isLoading ? 1 : 1.02 }} whileTap={{ scale: isLoading ? 1 : 0.98 }}>
               <NeuButton
                 type="submit"
                 variant="primary"
                 className="w-full justify-center text-lg mt-2"
-                disabled={isLoading}
-              >
+                disabled={isLoading}>
                 {isLoading ? (
                   <span className="flex items-center gap-2">
                     <motion.span
                       animate={{ rotate: 360 }}
                       transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-                      className="inline-block"
-                    >
+                      className="inline-block">
                       ⏳
                     </motion.span>
                     Signing In...
@@ -232,8 +220,7 @@ const Login = () => {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.8 }}
-        className="mt-6 text-center"
-      >
+        className="mt-6 text-center">
         <div className="inline-block bg-gradient-to-r from-purple-100 to-pink-100 px-6 py-3 rounded-full shadow-lg">
           <p className="text-sm text-purple-800 font-medium">
             💡 <span className="font-bold">Try it:</span> demo@example.com / password

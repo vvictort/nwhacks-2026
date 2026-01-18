@@ -6,7 +6,7 @@ import NeuButton from "../components/atoms/NeuButton";
 const Contact = () => {
   return (
     <div className="max-w-4xl mx-auto">
-      <h1 className="text-4xl font-bold text-neo-primary-800 mb-8 text-center">Contact Us</h1>
+      <h1 className="text-5xl font-bold font-display text-neo-primary-800 mb-8 text-center">Contact Us</h1>
       <div className="grid md:grid-cols-3 gap-8">
         <div className="md:col-span-2">
           <NeuCard title="Send us a message">

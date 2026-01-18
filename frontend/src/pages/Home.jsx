@@ -2,6 +2,7 @@ import React from "react";
 import { Link } from "react-router-dom";
 import NeuCard from "../components/atoms/NeuCard";
 import NeuButton from "../components/atoms/NeuButton";
+import AnimatedCounter from "../components/atoms/AnimatedCounter";
 // eslint-disable-next-line no-unused-vars
 import { motion } from "framer-motion";
 // import HeroImage from "../assets/hero_toys_v2.png";
@@ -12,6 +13,13 @@ import UnicornIcon from "../assets/unicorn.png";
 import BearIcon from "../assets/bear.png";
 
 const Home = () => {
+  const scrollToImpact = () => {
+    const impactSection = document.getElementById("impact-stats");
+    if (impactSection) {
+      impactSection.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  };
+
   const scrollToFeatured = () => {
     const featuredSection = document.getElementById("featured-toys");
     if (featuredSection) {
@@ -94,7 +102,66 @@ const Home = () => {
             Browse Toys
           </NeuButton>
         </motion.div>
+
+        {/* Scroll Arrow */}
+        <motion.div
+          className="absolute bottom-10 left-1/2 -translate-x-1/2 cursor-pointer z-20 flex flex-col items-center gap-2"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 1, duration: 1 }}
+          onClick={scrollToImpact}>
+          <motion.div
+            className="w-10 h-10 rounded-full bg-neo-bg-100 shadow-neo flex items-center justify-center text-neo-primary-600"
+            animate={{ y: [0, 8, 0] }}
+            transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              strokeWidth={3}
+              stroke="currentColor"
+              className="w-6 h-6">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+            </svg>
+          </motion.div>
+        </motion.div>
       </section>
+
+      {/* Impact Stats */}
+      <section id="impact-stats" className="py-16 scroll-mt-20">
+        <h2 className="text-5xl font-bold font-display text-neo-primary-700 mb-4 text-center">Our Impact</h2>
+        <p className="text-xl text-center text-neo-bg-600 max-w-2xl mx-auto mb-12 italic">
+          Connecting families through the power of play. Every toy shared reduces waste and spreads smiles across our
+          community.
+        </p>
+        <div className="grid md:grid-cols-4 gap-8">
+          <NeuCard className="text-center p-8">
+            <div className="text-4xl md:text-5xl font-extrabold text-neo-primary-600 mb-2">
+              <AnimatedCounter end={12500} duration={2.5} suffix="+" />
+            </div>
+            <p className="text-neo-bg-700 font-medium">Toys Shared</p>
+          </NeuCard>
+          <NeuCard className="text-center p-8">
+            <div className="text-4xl md:text-5xl font-extrabold text-neo-accent-600 mb-2">
+              <AnimatedCounter end={8200} duration={2.5} suffix="+" />
+            </div>
+            <p className="text-neo-bg-700 font-medium">Happy Families</p>
+          </NeuCard>
+          <NeuCard className="text-center p-8">
+            <div className="text-4xl md:text-5xl font-extrabold text-neo-primary-600 mb-2">
+              <AnimatedCounter end={45} duration={2} suffix=" tons" />
+            </div>
+            <p className="text-neo-bg-700 font-medium">Waste Reduced</p>
+          </NeuCard>
+          <NeuCard className="text-center p-8">
+            <div className="text-4xl md:text-5xl font-extrabold text-neo-accent-600 mb-2">
+              <AnimatedCounter end={95} duration={2} prefix="" suffix="%" />
+            </div>
+            <p className="text-neo-bg-700 font-medium">Satisfaction Rate</p>
+          </NeuCard>
+        </div>
+      </section>
+
       {/* How It Works */}
       <section className="scroll-mt-32">
         <h2 className="text-5xl font-bold font-display text-neo-primary-700 mb-10 text-center">How It Works</h2>
@@ -172,6 +239,7 @@ const Home = () => {
           </div>
         </div>
       </section>
+
       {/* Featured Toys */}
       <section id="featured-toys" className="scroll-mt-32">
         <h2 className="text-5xl font-bold font-display text-neo-primary-700 mb-10 text-center">Featured Toys</h2>
@@ -191,6 +259,28 @@ const Home = () => {
             </NeuCard>
           ))}
         </div>
+      </section>
+
+      {/* CTA Section */}
+      <section className="mb-20">
+        <NeuCard className="bg-gradient-to-br from-neo-primary-500 to-neo-primary-600 p-12 text-center relative overflow-hidden group">
+          <div className="absolute top-0 right-0 -mr-16 -mt-16 w-64 h-64 bg-white/10 rounded-full blur-3xl group-hover:bg-white/20 transition-all duration-500" />
+          <div className="absolute bottom-0 left-0 -ml-16 -mb-16 w-64 h-64 bg-neo-accent-500/20 rounded-full blur-3xl group-hover:bg-neo-accent-500/30 transition-all duration-500" />
+
+          <div className="relative z-10 flex flex-col items-center">
+            <h2 className="text-4xl md:text-5xl font-bold font-display text-white mb-6">Ready to Spread Joy? 🎁</h2>
+            <p className="text-neo-primary-50 text-xl mb-10 max-w-2xl mx-auto italic font-medium">
+              Join thousands of families making a difference. Give your toys a second life today!
+            </p>
+            <Link to="/register">
+              <NeuButton
+                variant="default"
+                className="bg-white text-neo-primary-700 hover:text-neo-primary-800 text-lg px-12 py-4 shadow-2xl">
+                Create Your Account
+              </NeuButton>
+            </Link>
+          </div>
+        </NeuCard>
       </section>
     </div>
   );

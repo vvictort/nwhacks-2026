@@ -36,6 +36,11 @@
   .flip-card-back {
     transform: rotateY(180deg);
   }
+
+  /* Cherry Bomb font styling */
+  .font-display {
+    letter-spacing: 0.05em;
+  }
 }
 
 body {

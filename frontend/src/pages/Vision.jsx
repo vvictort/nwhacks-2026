@@ -5,7 +5,7 @@ const Vision = () => {
   return (
     <div className="flex flex-col gap-16">
       <section className="text-center max-w-4xl mx-auto">
-        <h1 className="text-4xl md:text-5xl font-bold text-neo-primary-800 mb-8">Our Vision</h1>
+        <h1 className="text-5xl  md:text-5xl font-bold font-display text-neo-primary-800 mb-8">Our Vision</h1>
         <p className="text-xl text-neo-bg-700 leading-relaxed">
           We envision a world where every child has access to play, regardless of their economic background. By bridging
           the gap between families with excess toys and those in need, we foster a global community of sharing and
