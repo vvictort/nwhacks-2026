@@ -4,9 +4,11 @@ import cors from 'cors';
 import geminiRouter from './routes/gemini';
 import toysRouter from './src/routes/toys';
 import usersRouter from './src/routes/user';
+import { generalLimiter, apiLimiter } from './src/middleware/rateLimiter';
 
 const app = express();
 const port = 3000;
+app.use(generalLimiter);
 
 // CORS configuration
 app.use(cors({
