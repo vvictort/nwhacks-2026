@@ -31,43 +31,41 @@ Example output:
 }
 `;
 
-// --- NEW STUFF: THIS DOES NOT WORK YET
-// router.post('/classify', express.json({ limit: '20mb' }), async (req, res) => {
-//   try {
-//     const { image_base64, text } = req.body;
+// classify toy image and description into appropriate categories
+router.post('/classify', express.json({ limit: '20mb' }), async (req, res) => {
+  try {
+    const { image_base64, text } = req.body;
     
-//     if (!image_base64 || !text) {
-//       return res.status(400).json({ error: 'Need image_base64 and text' });
-//     }
+    if (!image_base64 || !text) {
+      return res.status(400).json({ error: 'Need image_base64 and text' });
+    }
 
-//    const response = await ai.models.generateContent({
-//       model: MODEL,
-//       contents: [
-//         {
-//           inlineData: {
-//             mimeType: 'image/jpeg',
-//             data: image_base64.replace(/^data:image\/[a-z]+;base64,/, '')
-//           }
-//         },
-//         {
-//           text: `${PROMPT}\n\nText description: "${text}"`
-//         }
-//       ]
-//     });
-//     const text_content = response.candidates?.[0]?.content?.parts?.[0]?.text;
-//     if (!text_content) {
-//       return res.status(500).json({ error: 'No text content in response' });
-//     }
-//     const json = JSON.parse(text_content);
-//     res.json(json);
+   const response = await ai.models.generateContent({
+      model: MODEL,
+      contents: [
+        {
+          inlineData: {
+            mimeType: 'image/jpeg',
+            data: image_base64.replace(/^data:image\/[a-z]+;base64,/, '')
+          }
+        },
+        {
+          text: `${PROMPT}\n\nText description: "${text}"`
+        }
+      ]
+    });
+    const text_content = response.candidates?.[0]?.content?.parts?.[0]?.text;
+    if (!text_content) {
+      return res.status(500).json({ error: 'No text content in response' });
+    }
+    const json = JSON.parse(text_content);
+    res.json(json);
     
-//   } catch (error) {
-//     const message = error instanceof Error ? error.message : 'Unknown error';
-//     res.status(500).json({ error: message });
-//   }
-// });
-
-// --- OLD STUFF BELOW
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'Unknown error';
+    res.status(500).json({ error: message });
+  }
+});
 
 // fetch generated responses from Gemini API
 router.get('/', async (req, res) => {
