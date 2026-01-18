@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import NeuCard from "../components/atoms/NeuCard";
 import NeuInput from "../components/atoms/NeuInput";
 import NeuButton from "../components/atoms/NeuButton";
-import { signInWithGoogle } from "../utils/authService";
+import { signInWithGoogle, mockSignIn } from "../utils/authService";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -71,7 +71,8 @@ const Login = () => {
       // Simulate login (replace with actual API call)
       // For demo: check if credentials match a test account
       if (formData.email === "demo@example.com" && formData.password === "password") {
-        navigate("/");
+        await mockSignIn(formData.email);
+        navigate("/dashboard");
       } else {
         setErrors({ submit: "Invalid email or password. Try demo@example.com / password" });
       }
