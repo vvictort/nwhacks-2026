@@ -52,6 +52,6 @@ app.listen(port, () => {
   console.log(`   PATCH /toys/:toyName - Update toy (auth required)`);
   console.log(`   GET  /users         - Get current user (auth required)`);
   console.log(`   GET  /users/recommendations - Get recommendations (auth required)`);
-  console.log(`   POST /gemini        - Gemini AI endpoint`);
+  console.log(`   POST /gemini/classify        - Classify toy with Gemini AI`);
 });
 

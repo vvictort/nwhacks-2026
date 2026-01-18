@@ -305,42 +305,40 @@ const Donate = () => {
           </div>
 
           {/* AI Detection Button - NEO PURPLE THEME */}
-          {images.length > 0 && formData.description.trim() && (
-            <div className="pt-6 pb-2 mx-4">
-              <NeuButton
-                type="button"
-                variant="secondary"
-                className="w-full bg-neo-primary-500 hover:bg-neo-primary-600 text-white shadow-2xl shadow-neo-primary-500/25 hover:shadow-neo-primary-500/40 transform hover:-translate-y-0.5 transition-all duration-300 border-0 font-semibold text-lg py-5 px-6"
-                onClick={handleDetectCategories}
-                disabled={isDetecting}
-              >
-                {isDetecting ? (
-                  <>
-                    <motion.span
-                      animate={{ rotate: 360 }}
-                      transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-                      className="text-yellow-300 text-xl mr-2"
-                    >
-                      ✨
-                    </motion.span>
-                    <span>Analyzing toy...</span>
-                  </>
-                ) : (
-                  <>
-                    <span className="text-2xl mr-3">🤖</span>
-                    <span className="font-bold">Detect Categories Automatically</span>
-                    <span className="ml-3 text-xs bg-white/20 px-3 py-1 rounded-full font-medium">AI Magic</span>
-                  </>
-                )}
-              </NeuButton>
-              {errors.detect && (
-                <p className="text-red-500 text-sm mt-3 text-center bg-red-50/50 p-2 rounded-xl">{errors.detect}</p>
+          <div className="pt-6 pb-2 mx-4">
+            <NeuButton
+              type="button"
+              variant="secondary"
+              className="w-full bg-neo-primary-500 hover:bg-neo-primary-600 text-white shadow-2xl shadow-neo-primary-500/25 hover:shadow-neo-primary-500/40 transform hover:-translate-y-0.5 transition-all duration-300 border-0 font-semibold text-lg py-5 px-6"
+              onClick={handleDetectCategories}
+              disabled={isDetecting}
+            >
+              {isDetecting ? (
+                <>
+                  <motion.span
+                    animate={{ rotate: 360 }}
+                    transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                    className="text-yellow-300 text-xl mr-2"
+                  >
+                    ✨
+                  </motion.span>
+                  <span>Analyzing toy...</span>
+                </>
+              ) : (
+                <>
+                  <span className="text-2xl mr-3">🤖</span>
+                  <span className="font-bold">Detect Categories Automatically</span>
+                  <span className="ml-3 text-xs bg-white/20 px-3 py-1 rounded-full font-medium">AI Magic</span>
+                </>
               )}
-              <p className="text-neo-bg-500 text-xs mt-2 text-center italic opacity-80">
-                AI will analyze your photo + description in seconds ✨
-              </p>
-            </div>
-          )}
+            </NeuButton>
+            {errors.detect && (
+              <p className="text-red-500 text-sm mt-3 text-center bg-red-50/50 p-2 rounded-xl">{errors.detect}</p>
+            )}
+            <p className="text-neo-bg-500 text-xs mt-2 text-center italic opacity-80">
+              AI will analyze your photo + description in seconds ✨
+            </p>
+          </div>
 
           {/* Category */}
           <div>
