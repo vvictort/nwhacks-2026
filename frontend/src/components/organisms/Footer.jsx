@@ -50,13 +50,13 @@ const Footer = () => {
     <footer className="px-4 pb-8 pt-24">
       <div className="max-w-6xl mx-auto">
         <motion.div
-          className="bg-gradient-to-br from-neo-bg-800 to-neo-bg-900 rounded-[3rem] shadow-[0_20px_60px_rgba(0,0,0,0.3)] p-8 md:p-12 border border-neo-bg-700/50 backdrop-blur-xl relative overflow-hidden"
+          className="bg-gradient-to-br from-neo-primary-600 to-neo-primary-800 rounded-[3rem] shadow-[0_20px_60px_rgba(0,0,0,0.3)] p-8 md:p-12 border border-neo-primary-500/50 backdrop-blur-xl relative overflow-hidden"
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true, margin: "-100px" }}
           variants={containerVariants}>
           {/* Subtle glow effect */}
-          <div className="absolute inset-0 bg-gradient-to-br from-neo-primary-500/5 via-transparent to-neo-primary-500/5 pointer-events-none" />
+          <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-transparent to-white/5 pointer-events-none" />
 
           <div className="relative z-10">
             {/* Top Section */}

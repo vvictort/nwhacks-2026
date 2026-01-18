@@ -1,5 +1,5 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import NeuCard from "../components/atoms/NeuCard";
 import NeuButton from "../components/atoms/NeuButton";
 import AnimatedCounter from "../components/atoms/AnimatedCounter";
@@ -7,6 +7,8 @@ import AnimatedCounter from "../components/atoms/AnimatedCounter";
 import { motion } from "framer-motion";
 
 const Dashboard = () => {
+  const navigate = useNavigate();
+
   // Mock user data - in a real app this would come from auth context/API
   const user = {
     name: "Sarah Johnson",
@@ -31,15 +33,15 @@ const Dashboard = () => {
   return (
     <div className="flex flex-col gap-20 pb-12">
       {/* Welcome Header */}
-      <section className="flex flex-col md:flex-row items-center gap-8">
+      <section className="flex flex-col md:flex-row items-center md:items-start gap-8">
         <motion.div
-          className="w-32 h-32 rounded-full bg-neo-bg-100 shadow-neo overflow-hidden"
+          className="w-32 h-32 rounded-full bg-neo-bg-100 shadow-neo overflow-hidden flex-shrink-0"
           initial={{ scale: 0 }}
           animate={{ scale: 1 }}
           transition={{ type: "spring", duration: 0.6 }}>
           <img src={user.avatar} alt={user.name} className="w-full h-full object-cover" />
         </motion.div>
-        <div className="text-center md:text-left">
+        <div className="text-center md:text-left flex-1">
           <motion.h1
             className="text-4xl md:text-5xl font-display text-neo-primary-800 mb-2"
             initial={{ opacity: 0, y: -20 }}
@@ -48,12 +50,26 @@ const Dashboard = () => {
             Welcome back, {user.name.split(" ")[0]}! 👋
           </motion.h1>
           <motion.p
-            className="text-neo-bg-600 text-lg"
+            className="text-neo-bg-600 text-lg mb-5"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.2, duration: 0.5 }}>
             Member since {user.memberSince}
           </motion.p>
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.4, duration: 0.5 }}
+            whileHover={{ scale: 1.03 }}
+            whileTap={{ scale: 0.98 }}>
+            <NeuButton
+              variant="secondary"
+              onClick={() => navigate("/account-settings")}
+              className="flex items-center justify-center gap-3 px-6 py-3 font-semibold bg-gradient-to-r from-neo-bg-50 to-neo-bg-100 hover:from-neo-primary-50 hover:to-neo-primary-100 hover:shadow-lg transition-all duration-300 group">
+              <span className="text-xl group-hover:rotate-90 transition-transform duration-300">⚙️</span>
+              <span className="group-hover:text-neo-primary-700 transition-colors">Account Settings</span>
+            </NeuButton>
+          </motion.div>
         </div>
       </section>
 
@@ -146,9 +162,8 @@ const Dashboard = () => {
                   <p className="text-sm text-neo-bg-500">{donation.date}</p>
                 </div>
                 <span
-                  className={`px-4 py-1 rounded-full text-sm font-medium ${
-                    donation.status === "Delivered" ? "bg-green-100 text-green-700" : "bg-yellow-100 text-yellow-700"
-                  }`}>
+                  className={`px-4 py-1 rounded-full text-sm font-medium ${donation.status === "Delivered" ? "bg-green-100 text-green-700" : "bg-yellow-100 text-yellow-700"
+                    }`}>
                   {donation.status}
                 </span>
               </div>

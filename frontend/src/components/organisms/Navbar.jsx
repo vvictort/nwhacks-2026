@@ -1,12 +1,17 @@
 import React from "react";
-import { NavLink, useLocation } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
+import { useAuth } from "../../hooks/useAuth";
 import { cn } from "../../utils/cn";
 
 const Navbar = () => {
-  const location = useLocation();
+  // const location = useLocation();
+  const navigate = useNavigate();
+  const { user, logout } = useAuth();
 
-  // Simulate logged-in state based on route (in real app, use auth context)
-  const isLoggedIn = location.pathname.startsWith("/dashboard");
+  const handleLogout = async () => {
+    await logout();
+    navigate("/");
+  };
 
   const publicNavItems = [
     { path: "/", label: "Home", icon: "🏠" },
@@ -18,14 +23,14 @@ const Navbar = () => {
 
   const userNavItems = [
     { path: "/dashboard", label: "Dashboard", icon: "📊" },
-    { path: "/dashboard#account", label: "Account", icon: "👤" },
+    { path: "/donate", label: "Donate", icon: "🎁" },
   ];
 
-  const navItems = [...publicNavItems, ...(isLoggedIn ? userNavItems : authNavItems)];
+  const navItems = [...publicNavItems, ...(user ? userNavItems : authNavItems)];
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 pt-6 px-4 flex justify-center">
-      <div className="bg-neo-bg-100/95 backdrop-blur-xl rounded-full shadow-[0_8px_32px_rgba(0,0,0,0.12)] px-2 py-2 border border-neo-bg-200/50 max-w-2xl">
+      <div className="bg-neo-bg-100/95 backdrop-blur-xl rounded-full shadow-[0_8px_32px_rgba(0,0,0,0.12)] px-2 py-2 border border-neo-bg-200/50 max-w-3xl">
         <ul className="flex items-center justify-center gap-1">
           {navItems.map((item) => (
             <li key={item.path}>
@@ -47,6 +52,19 @@ const Navbar = () => {
               </NavLink>
             </li>
           ))}
+          {user && (
+            <li>
+              <button
+                onClick={handleLogout}
+                className="flex items-center gap-2 px-5 py-2.5 rounded-full font-semibold transition-all duration-300 relative overflow-hidden group text-red-600 hover:bg-red-50 hover:text-red-700 border-l border-neo-bg-200 ml-1">
+                <span className="text-lg transition-transform duration-300 group-hover:scale-110">
+                  🚪
+                </span>
+                <span className="text-sm whitespace-nowrap">Logout</span>
+                <div className="absolute inset-0 bg-gradient-to-r from-red-400/0 via-red-400/10 to-red-400/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700" />
+              </button>
+            </li>
+          )}
         </ul>
       </div>
     </nav>
