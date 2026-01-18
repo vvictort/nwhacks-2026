@@ -43,7 +43,7 @@ const Contact = () => {
           <NeuCard title="Email Us">
             <p className="text-neo-bg-600 mb-2">General Inquiries:</p>
             <a href="mailto:hello@toyshare.com" className="text-neo-primary-600 hover:underline">
-              hello@toyshare.com
+              hello@toyjoy.com
             </a>
           </NeuCard>
         </div>
