@@ -160,26 +160,26 @@ const Register = () => {
             {/* Toy icons cluster */}
             <div className="flex justify-center gap-3 mb-4">
               <motion.div
-                className="w-12 h-12 rounded-2xl bg-gradient-to-br from-pink-400 to-pink-600 flex items-center justify-center shadow-lg"
+                className="w-12 h-12 rounded-2xl bg-gradient-to-br from-neo-primary-800 to-neo-primary-700 flex items-center justify-center shadow-lg"
                 animate={{ rotate: [0, 10, -10, 0] }}
                 transition={{ duration: 2, repeat: Infinity, delay: 0 }}>
                 <span className="text-2xl">🎪</span>
               </motion.div>
               <motion.div
-                className="w-16 h-16 rounded-2xl bg-gradient-to-br from-purple-400 to-purple-600 flex items-center justify-center shadow-lg"
+                className="w-16 h-16 rounded-2xl bg-gradient-to-br from-neo-primary-800 to-neo-primary-300 flex items-center justify-center shadow-lg"
                 animate={{ scale: [1, 1.1, 1] }}
                 transition={{ duration: 2, repeat: Infinity, delay: 0.3 }}>
                 <span className="text-3xl">🎁</span>
               </motion.div>
               <motion.div
-                className="w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center shadow-lg"
+                className="w-12 h-12 rounded-2xl bg-gradient-to-br from-neo-primary-400 to-neo-primary-300 flex items-center justify-center shadow-lg"
                 animate={{ rotate: [0, -10, 10, 0] }}
                 transition={{ duration: 2, repeat: Infinity, delay: 0.6 }}>
                 <span className="text-2xl">🎮</span>
               </motion.div>
             </div>
-            <h1 className="text-4xl font-bold bg-gradient-to-r from-neo-primary-600 via-purple-500 to-pink-500 bg-clip-text text-transparent mb-2">
-              Join the Fun! 🎉
+            <h1 className="text-4xl font-bold font-display bg-gradient-to-r from-neo-primary-800 via-neo-accent-400 to-neo-primary-300 bg-clip-text text-transparent mb-2">
+              Join the Fun!
             </h1>
             <p className="text-neo-bg-600 text-lg">Let's share toys and spread smiles worldwide! 🌍✨</p>
           </div>
@@ -314,15 +314,14 @@ const Register = () => {
                       <motion.div
                         initial={{ width: 0 }}
                         animate={{ width: `${(passwordStrength.strength / 5) * 100}%` }}
-                        className={`h-full ${
-                          passwordStrength.strength <= 2
-                            ? "bg-red-500"
-                            : passwordStrength.strength <= 3
-                              ? "bg-yellow-500"
-                              : passwordStrength.strength <= 4
-                                ? "bg-blue-500"
-                                : "bg-green-500"
-                        }`}
+                        className={`h-full ${passwordStrength.strength <= 2
+                          ? "bg-red-500"
+                          : passwordStrength.strength <= 3
+                            ? "bg-yellow-500"
+                            : passwordStrength.strength <= 4
+                              ? "bg-blue-500"
+                              : "bg-green-500"
+                          }`}
                       />
                     </div>
                     <span className={`text-xs font-medium ${passwordStrength.color}`}>{passwordStrength.label}</span>
@@ -380,9 +379,8 @@ const Register = () => {
                         setErrors({ ...errors, terms: "" });
                       }
                     }}
-                    className={`mt-1 w-6 h-6 rounded-xl shadow-neo-inset bg-neo-bg-100 border-0 text-neo-primary-500 focus:ring-2 focus:ring-neo-primary-300/50 cursor-pointer transition-all ${
-                      touched.terms && errors.terms ? "ring-2 ring-red-400" : ""
-                    }`}
+                    className={`mt-1 w-6 h-6 rounded-xl shadow-neo-inset bg-neo-bg-100 border-0 text-neo-primary-500 focus:ring-2 focus:ring-neo-primary-300/50 cursor-pointer transition-all ${touched.terms && errors.terms ? "ring-2 ring-red-400" : ""
+                      }`}
                   />
                 </div>
                 <label htmlFor="terms" className="text-sm text-neo-bg-600 text-left flex-1">
