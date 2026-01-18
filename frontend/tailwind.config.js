@@ -3,6 +3,10 @@ export default {
   content: ["./index.html", "./src/**/*.{js,ts,jsx,tsx}"],
   theme: {
     extend: {
+      fontFamily: {
+        sans: ["Nunito", "sans-serif"],
+        display: ['"Cherry Bomb One"', "cursive"],
+      },
       colors: {
         neo: {
           // soft blue-gray background/surfaces (dominant in your UI image)

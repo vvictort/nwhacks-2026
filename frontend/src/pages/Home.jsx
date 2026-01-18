@@ -66,7 +66,7 @@ const Home = () => {
         </motion.div>
 
         <motion.h1
-          className="text-5xl md:text-7xl font-bold text-neo-primary-800 mb-6 relative z-20 drop-shadow-sm"
+          className="text-5xl md:text-7xl font-display text-neo-primary-800 mb-6 relative z-20 drop-shadow-sm"
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}>
@@ -74,7 +74,7 @@ const Home = () => {
           <span className="text-neo-accent-500">Spread the Love</span>
         </motion.h1>
         <motion.p
-          className="text-xl text-neo-bg-800 mb-10 max-w-2xl mx-auto relative z-20 font-medium drop-shadow-sm"
+          className="text-xl text-neo-bg-800 mb-10 max-w-2xl mx-auto relative z-20 font-medium italic drop-shadow-sm"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.3, duration: 0.6 }}>
@@ -97,45 +97,97 @@ const Home = () => {
       </section>
       {/* How It Works */}
       <section className="scroll-mt-32">
-        <h2 className="text-3xl font-bold text-neo-primary-700 mb-10 text-center">How It Works</h2>
+        <h2 className="text-5xl font-bold font-display text-neo-primary-700 mb-10 text-center">How It Works</h2>
         <div className="grid md:grid-cols-3 gap-8">
-          <NeuCard className="text-center flex flex-col items-center">
-            <div className="w-16 h-16 rounded-full bg-neo-bg-100 shadow-neo-inset flex items-center justify-center mb-6 text-3xl">
-              📸
+          {/* Card 1: List It */}
+          <div className="flip-card h-72">
+            <div className="flip-card-inner">
+              <div className="flip-card-front">
+                <NeuCard className="text-center flex flex-col items-center h-full justify-center">
+                  <div className="w-16 h-16 rounded-full bg-neo-bg-100 shadow-neo-inset flex items-center justify-center mb-6 text-3xl">
+                    📸
+                  </div>
+                  <h3 className="text-xl font-extrabold text-neo-bg-800 mb-2">1. List It</h3>
+                  <p className="text-neo-bg-600 italic">Snap a photo and add a description.</p>
+                </NeuCard>
+              </div>
+              <div className="flip-card-back">
+                <NeuCard className="text-center flex flex-col items-center h-full justify-center bg-neo-primary-100">
+                  <h3 className="text-lg font-bold text-neo-primary-800 mb-3">More About Listing</h3>
+                  <p className="text-neo-primary-700 text-sm px-4">
+                    Take a clear photo of your toy, write a short description about its condition, and set it live.
+                    Other families can browse and request it instantly. It's completely free!
+                  </p>
+                </NeuCard>
+              </div>
             </div>
-            <h3 className="text-xl font-bold text-neo-bg-800 mb-2">1. List It</h3>
-            <p className="text-neo-bg-600">Snap a photo of your toy and add a description. It's quick and free.</p>
-          </NeuCard>
-          <NeuCard className="text-center flex flex-col items-center">
-            <div className="w-16 h-16 rounded-full bg-neo-bg-100 shadow-neo-inset flex items-center justify-center mb-6 text-3xl">
-              📦
+          </div>
+
+          {/* Card 2: Ship It */}
+          <div className="flip-card h-72">
+            <div className="flip-card-inner">
+              <div className="flip-card-front">
+                <NeuCard className="text-center flex flex-col items-center h-full justify-center">
+                  <div className="w-16 h-16 rounded-full bg-neo-bg-100 shadow-neo-inset flex items-center justify-center mb-6 text-3xl">
+                    📦
+                  </div>
+                  <h3 className="text-xl font-extrabold text-neo-bg-800 mb-2">2. Ship It</h3>
+                  <p className="text-neo-bg-600 italic">Connect and ship with discounted labels.</p>
+                </NeuCard>
+              </div>
+              <div className="flip-card-back">
+                <NeuCard className="text-center flex flex-col items-center h-full justify-center bg-neo-accent-100">
+                  <h3 className="text-lg font-bold text-neo-accent-800 mb-3">More About Shipping</h3>
+                  <p className="text-neo-accent-700 text-sm px-4">
+                    Once a family requests your toy, we'll provide a discounted shipping label. Pack it up with care and
+                    drop it off at any carrier location. Simple and affordable!
+                  </p>
+                </NeuCard>
+              </div>
             </div>
-            <h3 className="text-xl font-bold text-neo-bg-800 mb-2">2. Ship It</h3>
-            <p className="text-neo-bg-600">Connect with a family and ship the toy using our discounted labels.</p>
-          </NeuCard>
-          <NeuCard className="text-center flex flex-col items-center">
-            <div className="w-16 h-16 rounded-full bg-neo-bg-100 shadow-neo-inset flex items-center justify-center mb-6 text-3xl">
-              😊
+          </div>
+
+          {/* Card 3: Enjoy It */}
+          <div className="flip-card h-72">
+            <div className="flip-card-inner">
+              <div className="flip-card-front">
+                <NeuCard className="text-center flex flex-col items-center h-full justify-center">
+                  <div className="w-16 h-16 rounded-full bg-neo-bg-100 shadow-neo-inset flex items-center justify-center mb-6 text-3xl">
+                    😊
+                  </div>
+                  <h3 className="text-xl font-extrabold text-neo-bg-800 mb-2">3. Enjoy It</h3>
+                  <p className="text-neo-bg-600 italic">Bring smiles and reduce waste.</p>
+                </NeuCard>
+              </div>
+              <div className="flip-card-back">
+                <NeuCard className="text-center flex flex-col items-center h-full justify-center bg-neo-bg-200">
+                  <h3 className="text-lg font-bold text-neo-bg-800 mb-3">More About Impact</h3>
+                  <p className="text-neo-bg-700 text-sm px-4">
+                    Your pre-loved toy finds a new home where it will be cherished again. You've made a child happy and
+                    helped reduce landfill waste. Win-win!
+                  </p>
+                </NeuCard>
+              </div>
             </div>
-            <h3 className="text-xl font-bold text-neo-bg-800 mb-2">3. Enjoy It</h3>
-            <p className="text-neo-bg-600">Bring a smile to a child's face and reduce waste.</p>
-          </NeuCard>
+          </div>
         </div>
       </section>
       {/* Featured Toys */}
       <section id="featured-toys" className="scroll-mt-32">
-        <h2 className="text-3xl font-bold text-neo-primary-700 mb-10 text-center">Featured Toys</h2>
+        <h2 className="text-5xl font-bold font-display text-neo-primary-700 mb-10 text-center">Featured Toys</h2>
         <div className="grid md:grid-cols-4 gap-6">
           {[RobotIcon, BearIcon, CarIcon, PuzzleIcon].map((toy, index) => (
             <NeuCard key={index} className="p-6">
               <div className="aspect-square bg-neo-bg-100 rounded-xl mb-4 flex items-center justify-center shadow-neo-inset p-4">
                 <img src={toy} alt="Featured Toy" className="w-full h-full object-contain" />
               </div>
-              <h3 className="font-bold text-neo-bg-800">Classic Toy Set</h3>
-              <p className="text-sm text-neo-bg-500 mb-4">Good Condition</p>
-              <NeuButton variant="accent" className="w-full py-2 text-sm">
-                Request
-              </NeuButton>
+              <h3 className="font-extrabold tracking-tight text-neo-bg-800">Classic Toy Set</h3>
+              <p className="text-sm text-neo-primary-500 italic mb-4">Good Condition</p>
+              <Link to="/login">
+                <NeuButton variant="accent" className="w-full py-2 text-sm">
+                  Request
+                </NeuButton>
+              </Link>
             </NeuCard>
           ))}
         </div>
