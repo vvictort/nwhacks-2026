@@ -196,7 +196,7 @@ const Register = () => {
                   🎉
                 </motion.span>
                 <div>
-                  <p className="text-green-800 font-bold text-base">Woohoo! Welcome to ToyShare! 🎊</p>
+                  <p className="text-green-800 font-bold text-base">Woohoo! Welcome to ToyJoy! 🎊</p>
                   <p className="text-green-600 text-sm">Get ready to spread joy...</p>
                 </div>
               </motion.div>
