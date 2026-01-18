@@ -22,6 +22,8 @@ function App() {
             <Route path="/contact" element={<Contact />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
+
+            {/* Protected Routes */}
             <Route
               path="/dashboard"
               element={
@@ -30,7 +32,11 @@ function App() {
                 </ProtectedRoute>
               }
             />
-            <Route path="/donate" element={<Donate />} />
+            <Route path="/donate" element={
+              <ProtectedRoute>
+                <Donate />
+              </ProtectedRoute>
+            } />
             <Route path="/forgot-password" element={<ForgotPassword />} />
           </Routes>
         </MainLayout>
