@@ -87,10 +87,11 @@ const Login = () => {
     try {
       setIsLoading(true);
       await signInWithGoogle();
-      // Redirect will happen automatically - no need to navigate
+      navigate("/dashboard");
     } catch (error) {
       setErrors({ submit: "Google sign-in failed. Please try again." });
       console.error(error);
+    } finally {
       setIsLoading(false);
     }
   };

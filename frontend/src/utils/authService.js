@@ -1,34 +1,23 @@
 import {
-    signInWithRedirect,
-    getRedirectResult,
+    signInWithPopup,
     signOut,
     onAuthStateChanged
 } from 'firebase/auth';
 import { auth, googleProvider } from '../config/firebase';
 
-// Sign in with Google redirect (avoids COOP errors)
+// Sign in with Google popup
 export const signInWithGoogle = async () => {
     try {
-        await signInWithRedirect(auth, googleProvider);
-        // User will be redirected - no return value here
+        const result = await signInWithPopup(auth, googleProvider);
+        const user = result.user;
+        const idToken = await user.getIdToken();
+
+        // Store token for API calls
+        localStorage.setItem('authToken', idToken);
+
+        return { user, idToken };
     } catch (error) {
         console.error('Error signing in with Google:', error);
-        throw error;
-    }
-};
-
-// Handle redirect result after sign-in
-export const handleRedirectResult = async () => {
-    try {
-        const result = await getRedirectResult(auth);
-        if (result?.user) {
-            const idToken = await result.user.getIdToken();
-            localStorage.setItem('authToken', idToken);
-            return { user: result.user, idToken };
-        }
-        return null;
-    } catch (error) {
-        console.error('Error handling redirect:', error);
         throw error;
     }
 };

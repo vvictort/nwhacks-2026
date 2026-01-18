@@ -1,5 +1,5 @@
 import { createContext, useState, useEffect } from 'react';
-import { onAuthChange, signOutUser, handleRedirectResult } from '../utils/authService';
+import { onAuthChange, signOutUser } from '../utils/authService';
 
 // eslint-disable-next-line react-refresh/only-export-components
 export const AuthContext = createContext(null);
@@ -9,9 +9,6 @@ export const AuthProvider = ({ children }) => {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        // Handle redirect result first
-        handleRedirectResult().catch(console.error);
-
         const unsubscribe = onAuthChange((currentUser) => {
             setUser(currentUser);
             setLoading(false);
