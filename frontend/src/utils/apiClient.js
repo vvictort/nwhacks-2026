@@ -2,6 +2,24 @@ import { getCurrentUserToken } from './authService';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
 
+// Make public (non-authenticated) API requests
+export const publicApiClient = {
+    async get(endpoint) {
+        const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        });
+
+        if (!response.ok) {
+            throw new Error(`API Error: ${response.status}`);
+        }
+
+        return response.json();
+    },
+};
+
 // Make authenticated API requests
 export const apiClient = {
     async get(endpoint) {

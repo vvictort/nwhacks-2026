@@ -11,6 +11,7 @@ import Dashboard from "./pages/Dashboard";
 import Donate from "./pages/Donate";
 import ForgotPassword from "./pages/ForgotPassword";
 import AccountSettings from "./pages/AccountSettings";
+import Browse from "./pages/Browse";
 
 function App() {
   return (
@@ -23,6 +24,7 @@ function App() {
             <Route path="/contact" element={<Contact />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
+            <Route path="/browse" element={<Browse />} />
 
             {/* Protected Routes */}
             <Route
