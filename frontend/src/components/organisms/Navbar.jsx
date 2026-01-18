@@ -1,14 +1,27 @@
 import React from "react";
-import { NavLink } from "react-router-dom";
+import { NavLink, useLocation } from "react-router-dom";
 import { cn } from "../../utils/cn";
 
 const Navbar = () => {
-  const navItems = [
+  const location = useLocation();
+
+  // Simulate logged-in state based on route (in real app, use auth context)
+  const isLoggedIn = location.pathname.startsWith("/dashboard");
+
+  const publicNavItems = [
     { path: "/", label: "Home", icon: "🏠" },
     { path: "/vision", label: "Vision", icon: "👁️" },
     { path: "/contact", label: "Contact", icon: "✉️" },
-    { path: "/login", label: "Login", icon: "🔐" },
   ];
+
+  const authNavItems = [{ path: "/login", label: "Login", icon: "🔐" }];
+
+  const userNavItems = [
+    { path: "/dashboard", label: "Dashboard", icon: "📊" },
+    { path: "/dashboard#account", label: "Account", icon: "👤" },
+  ];
+
+  const navItems = [...publicNavItems, ...(isLoggedIn ? userNavItems : authNavItems)];
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 pt-6 px-4 flex justify-center">
@@ -23,10 +36,9 @@ const Navbar = () => {
                     "flex items-center gap-2 px-5 py-2.5 rounded-full font-semibold transition-all duration-300 relative overflow-hidden group",
                     isActive
                       ? "bg-neo-primary-500 text-white shadow-lg"
-                      : "text-neo-bg-700 hover:text-neo-primary-600 hover:bg-neo-bg-200"
+                      : "text-neo-bg-700 hover:text-neo-primary-600 hover:bg-neo-bg-200",
                   )
-                }
-              >
+                }>
                 <span className="text-lg transition-transform duration-300 group-hover:scale-110 group-hover:rotate-6">
                   {item.icon}
                 </span>
