@@ -5,6 +5,7 @@ import geminiRouter from './routes/gemini';
 import toysRouter from './src/routes/toys';
 import usersRouter from './src/routes/user';
 import { generalLimiter, apiLimiter } from './src/middleware/rateLimiter';
+import { verifyAppCheck } from './src/middleware/appCheck';
 
 const app = express();
 const port = 3000;
@@ -34,9 +35,9 @@ app.get('/', (req: Request, res: Response) => {
 });
 
 // Mount API routers
-app.use('/gemini', geminiRouter);
-app.use('/toys', toysRouter);  // Mounts toys routes with /toys prefix
-app.use('/users', usersRouter); // Mounts users routes with /users prefix
+app.use('/gemini', verifyAppCheck, geminiRouter);
+app.use('/toys', verifyAppCheck, toysRouter);  // Mounts toys routes with /toys prefix
+app.use('/users', verifyAppCheck, usersRouter); // Mounts users routes with /users prefix
 
 // 404 handler
 app.use((req: Request, res: Response) => {
