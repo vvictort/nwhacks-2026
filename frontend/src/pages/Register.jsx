@@ -126,6 +126,7 @@ const Register = () => {
         } catch (error) {
             setErrors({ submit: "Registration failed. Please try again." });
             setIsLoading(false);
+            console.log("Signup Error: " + error);
         }
     };
 
