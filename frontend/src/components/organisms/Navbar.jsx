@@ -23,11 +23,13 @@ const Navbar = () => {
   const authNavItems = [{ path: "/login", label: "Login", icon: "🔐" }];
 
   const userNavItems = [
-    { path: "/dashboard", label: "Dashboard", icon: "📊" },
+    { path: "/dashboard", label: "Dashboard", icon: "🏠" },
+    { path: "/browse", label: "Browse", icon: "🧸" },
     { path: "/donate", label: "Donate", icon: "🎁" },
+    { path: "/contact", label: "Contact", icon: "✉️" },
   ];
 
-  const navItems = [...publicNavItems, ...(user ? userNavItems : authNavItems)];
+  const navItems = user ? userNavItems : [...publicNavItems, ...authNavItems];
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 pt-6 px-4 flex justify-center">
