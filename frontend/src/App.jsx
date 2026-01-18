@@ -7,6 +7,7 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Dashboard from "./pages/Dashboard";
 import Donate from "./pages/Donate";
+import ForgotPassword from "./pages/ForgotPassword";
 
 function App() {
   return (
@@ -20,6 +21,7 @@ function App() {
           <Route path="/register" element={<Register />} />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/donate" element={<Donate />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
         </Routes>
       </MainLayout>
     </BrowserRouter>

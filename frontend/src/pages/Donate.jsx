@@ -5,6 +5,7 @@ import NeuButton from "../components/atoms/NeuButton";
 import NeuInput from "../components/atoms/NeuInput";
 // eslint-disable-next-line no-unused-vars
 import { motion, AnimatePresence } from "framer-motion";
+import confetti from "canvas-confetti";
 
 const Donate = () => {
   const navigate = useNavigate();
@@ -95,6 +96,17 @@ const Donate = () => {
     // Simulate API call
     await new Promise((resolve) => setTimeout(resolve, 2000));
     setIsSubmitting(false);
+
+    // Celebration confetti! 🎉
+    confetti({
+      particleCount: 150,
+      spread: 100,
+      origin: { y: 0.6 },
+      colors: ["#8c97c9", "#bb88a7", "#f5f2e8", "#ffd700"],
+    });
+
+    // Small delay to let users enjoy the confetti
+    await new Promise((resolve) => setTimeout(resolve, 1500));
     navigate("/dashboard");
   };
 
