@@ -1,20 +1,30 @@
-FROM node:20-alpine
-
+FROM node:20-alpine AS builder
 WORKDIR /app
 
-# Copy package files first (for layer caching)
+# Copy package files first (cache optimization)
 COPY package.json package-lock.json* ./
 
-# Install dependencies
-RUN npm ci
+# FIXED: Remove --prefer-offline + add cache cleaning
+RUN npm cache clean --force \
+    && npm ci
 
-# Copy source code
+# Copy source and build
 COPY . .
-
-# BUILD FIRST (compiles TypeScript)
 RUN npm run build
 
-EXPOSE 3000
+# Production runtime (minimal)
+FROM node:20-alpine
+WORKDIR /app
+ENV NODE_ENV=production
 
-# RUN LATER (starts production server)
-CMD ["npm", "start"]
+# Copy ONLY production deps + built app
+COPY package.json package-lock.json* ./
+RUN npm ci --only=production --no-audit --no-fund \
+    && npm cache clean --force
+
+COPY --from=builder /app/dist ./dist
+
+# Security: non-root user
+USER node
+EXPOSE 3000
+CMD ["node", "dist/server.js"]
