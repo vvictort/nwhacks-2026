@@ -256,9 +256,9 @@ router.post("/:toyName/claim", authenticateFirebaseToken, async (req: AuthReques
         // Update toy status to reserved
         await querySnowflake(
             `UPDATE TOY_APP.PUBLIC.TOYS
-             SET STATUS = 'reserved', CLAIMED_BY = ?
+             SET STATUS = 'reserved'
              WHERE TOY_NAME = ?`,
-            [claimerId, toyName]
+            [toyName]
         );
 
         // Add to claimer's wish_list (claimed/received toys)
