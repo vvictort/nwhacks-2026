@@ -43,8 +43,8 @@ const mockBrowseToys = [
     },
     {
         id: 'browse-4',
-        toyName: 'Wooden Train Set',
-        description: 'Classic wooden train set compatible with major brands. 50+ pieces!',
+        toyName: 'Wooden Train',
+        description: 'Classic wooden train compatible with major brands. 50+ pieces!',
         category: 'vehicles',
         condition: 'excellent',
         ageRange: '3-4',

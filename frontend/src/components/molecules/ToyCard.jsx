@@ -11,6 +11,7 @@ const ToyCard = ({ toy, onClaimed }) => {
     const [images, setImages] = useState([]);
     const [currentImageIndex, setCurrentImageIndex] = useState(0);
     const [isLoadingImages, setIsLoadingImages] = useState(true);
+    const [imageLoadError, setImageLoadError] = useState(false);
     const [showModal, setShowModal] = useState(false);
     const [isClaiming, setIsClaiming] = useState(false);
     const [claimError, setClaimError] = useState(null);
@@ -47,7 +48,13 @@ const ToyCard = ({ toy, onClaimed }) => {
 
                 const data = await response.json();
                 if (data.images && data.images.length > 0) {
-                    setImages(data.images);
+                    // Filter out images with invalid/empty data
+                    const validImages = data.images.filter(img =>
+                        img.imageData &&
+                        img.imageData.length > 100 &&
+                        !img.imageData.startsWith('AAAA') // Filter out black/empty images
+                    );
+                    setImages(validImages);
                 }
             } catch (error) {
                 console.error("Failed to fetch toy images:", error);
@@ -186,7 +193,7 @@ const ToyCard = ({ toy, onClaimed }) => {
                                     <div className="absolute inset-0 flex items-center justify-center bg-white/20">
                                         <div className="w-8 h-8 border-3 border-white/30 border-t-white rounded-full animate-spin"></div>
                                     </div>
-                                ) : images.length > 0 ? (
+                                ) : images.length > 0 && !imageLoadError ? (
                                     // Image slideshow
                                     <>
                                         <AnimatePresence mode="wait">
@@ -199,6 +206,7 @@ const ToyCard = ({ toy, onClaimed }) => {
                                                 animate={{ opacity: 1 }}
                                                 exit={{ opacity: 0 }}
                                                 transition={{ duration: 0.3 }}
+                                                onError={() => setImageLoadError(true)}
                                             />
                                         </AnimatePresence>
 
@@ -260,8 +268,8 @@ const ToyCard = ({ toy, onClaimed }) => {
                             {/* Status Badge - Top Right */}
                             <div className="absolute -top-2 -right-2 bg-white rounded-full px-3 py-1 shadow-md flex items-center gap-1.5 z-10">
                                 <span className={`w-2 h-2 rounded-full animate-pulse ${toy.status === 'available' ? 'bg-green-500' :
-                                        toy.status === 'reserved' ? 'bg-yellow-500' :
-                                            'bg-gray-500'
+                                    toy.status === 'reserved' ? 'bg-yellow-500' :
+                                        'bg-gray-500'
                                     }`}></span>
                                 <span className="text-xs font-medium text-gray-600 capitalize">{toy.status}</span>
                             </div>
@@ -346,11 +354,12 @@ const ToyCard = ({ toy, onClaimed }) => {
                         >
                             {/* Modal Header with Image */}
                             <div className={`relative h-48 bg-gradient-to-br ${theme.gradient} rounded-t-3xl overflow-hidden`}>
-                                {images.length > 0 ? (
+                                {images.length > 0 && !imageLoadError ? (
                                     <img
                                         src={`data:image/jpeg;base64,${images[0].imageData}`}
                                         alt={toy.toyName}
                                         className="w-full h-full object-cover"
+                                        onError={() => setImageLoadError(true)}
                                     />
                                 ) : (
                                     <div className="w-full h-full flex items-center justify-center">
