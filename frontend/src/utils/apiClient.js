@@ -1,6 +1,5 @@
 import { getCurrentUserToken } from './authService';
-
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+const API_BASE_URL = import.meta.env.VITE_ENV == "prod" ? import.meta.env.VITE_PROD_URL : import.meta.env.VITE_API_URL;
 
 // Make public (non-authenticated) API requests
 export const publicApiClient = {
