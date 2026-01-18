@@ -4,6 +4,7 @@ import type { Response } from "express";
 import { authenticateFirebaseToken } from "../middleware/authMiddleware";
 import type { AuthRequest } from "../types/auth-request";
 import { querySnowflake } from "../config/snowflake";
+import {ensureUserRow} from "../util/helpers";
 
 const router = Router();
 
@@ -127,36 +128,6 @@ function validateCondition(input: unknown): string | null {
     return ALLOWED_CONDITIONS.has(v) ? v : null;
 }
 
-/**
- * GET /toys (public)
- * Lists available toys.
- */
-router.get("/", async (_req, res: Response) => {
-    try {
-        const toys = await querySnowflake(
-            `SELECT
-                 TOY_NAME    AS "toyName",
-                 DESCRIPTION AS "description",
-                 CATEGORY    AS "category",
-                 AGE_RANGE   AS "ageRange",
-                 CONDITION   AS "condition",
-                 OWNER_ID    AS "ownerId",
-                 STATUS      AS "status",
-                 CREATED_AT  AS "createdAt"
-             FROM TOY_APP.PUBLIC.TOYS
-             WHERE COALESCE(STATUS, 'available') = 'available'
-             ORDER BY CREATED_AT DESC
-                 LIMIT ?`,
-            [50]
-        );
-
-        return res.status(200).json({ toys });
-    } catch (err) {
-        console.error("GET /toys failed:", err);
-        return res.status(500).json({ error: "Failed to fetch toys" });
-    }
-});
-
 // GET /toys/:toyName/images (public)
 router.get("/:toyName/images", async (req, res) => {
     try {
@@ -214,150 +185,6 @@ router.get("/:toyName", async (req, res: Response) => {
 });
 
 /**
- * POST /toys (auth required)
- * Creates a toy listing owned by the authenticated user.
- *
- * Body (camelCase preferred; snake_case accepted):
- * - toyName / toy_name (required)
- * - description (optional)
- * - category (optional)         -> must be one of ALLOWED_CATEGORIES (Title Case)
- * - ageRange / age_range (optional)
- * - condition (optional)        -> must be one of ALLOWED_CONDITIONS (with spaces)
- * - status (optional)           -> draft|available|reserved|completed
- * - images (optional)           -> array of base64 jpeg strings (max 5 images)
- */
-// Example input:
-//{
-//   "toyName": "Wooden Train Set",
-//   "description": "All tracks included.",
-//   "category": "Vehicles",
-//   "ageRange": "3-5",
-//   "condition": "Well used",
-//   "status": "available",
-//   "images": [
-//     "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD...",
-//     "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD..."
-//   ]
-// }
-router.post("/", authenticateFirebaseToken, async (req: AuthRequest, res: Response) => {
-    try {
-        if (!req.user) return res.status(401).json({ error: "Unauthenticated" });
-        const ownerId = req.user.uid;
-
-        const toyName = pickString(req.body.toyName ?? req.body.toy_name);
-        if (!toyName) return res.status(400).json({ error: "toyName is required" });
-
-        const toyNameCheck = validateLength(toyName, MAX_TOY_NAME_LENGTH, "toyName");
-        if (!toyNameCheck.valid) return res.status(400).json({ error: toyNameCheck.error });
-
-        const description = pickString(req.body.description);
-        const descCheck = validateLength(description, MAX_DESCRIPTION_LENGTH, "description");
-        if (!descCheck.valid) return res.status(400).json({ error: descCheck.error });
-
-        const category = validateCategory(req.body.category);
-        if (req.body.category != null && category == null) {
-            return res.status(400).json({ error: "Invalid category", allowed: Array.from(ALLOWED_CATEGORIES) });
-        }
-
-        const ageRange = pickString(req.body.ageRange ?? req.body.age_range);
-        const ageRangeCheck = validateLength(ageRange, MAX_AGE_RANGE_LENGTH, "ageRange");
-        if (!ageRangeCheck.valid) return res.status(400).json({ error: ageRangeCheck.error });
-
-        const condition = validateCondition(req.body.condition);
-        if (req.body.condition != null && condition == null) {
-            return res.status(400).json({ error: "Invalid condition", allowed: Array.from(ALLOWED_CONDITIONS) });
-        }
-
-        const status = normalizeStatus(req.body.status) ?? "available";
-
-        // Optional images: req.body.images is an array of base64 jpeg strings
-        const imagesInput = req.body.images;
-        let images: string[] = [];
-
-        if (imagesInput !== undefined && imagesInput !== null) {
-            if (!Array.isArray(imagesInput)) {
-                return res.status(400).json({ error: "images must be an array of base64 JPEG strings" });
-            }
-            if (imagesInput.length > MAX_IMAGES) {
-                return res.status(400).json({ error: `Too many images (max ${MAX_IMAGES})` });
-            }
-
-            const validated: string[] = [];
-            for (let i = 0; i < imagesInput.length; i++) {
-                const v = parseAndValidateJpegBase64(imagesInput[i]);
-                if (!v.ok) {
-                    return res.status(400).json({ error: `images[${i}]: ${v.error}` });
-                }
-                validated.push(v.b64); // store payload without data url prefix
-            }
-            images = validated;
-        }
-
-        // Optional pre-check for nicer 409 (still handle duplicates on insert too)
-        const existingToy = await querySnowflake(
-            `SELECT 1 FROM TOY_APP.PUBLIC.TOYS WHERE TOY_NAME = ? LIMIT 1`,
-            [toyName]
-        );
-        if (existingToy.length > 0) {
-            return res.status(409).json({ error: "A toy with this name already exists" });
-        }
-
-        // Insert toy
-        try {
-            await querySnowflake(
-                `INSERT INTO TOY_APP.PUBLIC.TOYS
-           (TOY_NAME, DESCRIPTION, CATEGORY, AGE_RANGE, CONDITION, OWNER_ID, STATUS)
-         VALUES (?, ?, ?, ?, ?, ?, ?)`,
-                [toyName, description, category, ageRange, condition, ownerId, status]
-            );
-        } catch (e: any) {
-            const msg = String(e?.message ?? e ?? "").toLowerCase();
-            if (msg.includes("duplicate") || msg.includes("primary key")) {
-                return res.status(409).json({ error: "A toy with this name already exists" });
-            }
-            throw e;
-        }
-
-        // If an image insert fails, return 500.
-        const imageIds: string[] = [];
-        for (let i = 0; i < images.length; i++) {
-            const imageId = `IMG_${Date.now()}_${i}`;
-            imageIds.push(imageId);
-
-            await querySnowflake(
-                `INSERT INTO TOY_APP.PUBLIC.TOY_IMAGES (IMAGE_ID, TOY_NAME, IMAGE_DATA)
-         VALUES (?, ?, ?)`,
-                [imageId, toyName, images[i]]
-            );
-        }
-
-        const created = await querySnowflake(
-            `SELECT
-         TOY_NAME    AS "toyName",
-         DESCRIPTION AS "description",
-         CATEGORY    AS "category",
-         AGE_RANGE   AS "ageRange",
-         CONDITION   AS "condition",
-         OWNER_ID    AS "ownerId",
-         STATUS      AS "status",
-         CREATED_AT  AS "createdAt"
-       FROM TOY_APP.PUBLIC.TOYS
-       WHERE TOY_NAME = ?
-       LIMIT 1`,
-            [toyName]
-        );
-
-        return res.status(201).json({
-            toy: created[0] ?? { toyName },
-            imageIds,
-        });
-    } catch (err) {
-        console.error("POST /toys failed:", err);
-        return res.status(500).json({ error: "Failed to create toy" });
-    }
-});
-
-/**
  * PATCH /toys/:toyName (auth required)
  * Only the owner can update.
  *
@@ -374,6 +201,7 @@ router.patch("/:toyName", authenticateFirebaseToken, async (req: AuthRequest, re
     try {
         if (!req.user) return res.status(401).json({ error: "Unauthenticated" });
         const ownerId = req.user.uid;
+        await ensureUserRow(ownerId, req.user.email ?? null);
 
         const existing = await querySnowflake<{ ownerId: string }>(
             `SELECT OWNER_ID AS "ownerId"
@@ -460,6 +288,196 @@ router.patch("/:toyName", authenticateFirebaseToken, async (req: AuthRequest, re
     } catch (err) {
         console.error("PATCH /toys/:toyName failed:", err);
         return res.status(500).json({ error: "Failed to update toy" });
+    }
+});
+
+
+/**
+ * GET /toys (public)
+ * Lists available toys.
+ */
+router.get("/", async (_req, res: Response) => {
+    try {
+        const toys = await querySnowflake(
+            `SELECT
+                 TOY_NAME    AS "toyName",
+                 DESCRIPTION AS "description",
+                 CATEGORY    AS "category",
+                 AGE_RANGE   AS "ageRange",
+                 CONDITION   AS "condition",
+                 OWNER_ID    AS "ownerId",
+                 STATUS      AS "status",
+                 CREATED_AT  AS "createdAt"
+             FROM TOY_APP.PUBLIC.TOYS
+             WHERE COALESCE(STATUS, 'available') = 'available'
+             ORDER BY CREATED_AT DESC
+                 LIMIT ?`,
+            [50]
+        );
+
+        return res.status(200).json({ toys });
+    } catch (err) {
+        console.error("GET /toys failed:", err);
+        return res.status(500).json({ error: "Failed to fetch toys" });
+    }
+});
+
+/**
+ * POST /toys (auth required)
+ * Creates a toy listing owned by the authenticated user.
+ *
+ * Body (camelCase preferred; snake_case accepted):
+ * - toyName / toy_name (required)
+ * - description (optional)
+ * - category (optional)         -> must be one of ALLOWED_CATEGORIES (Title Case)
+ * - ageRange / age_range (optional)
+ * - condition (optional)        -> must be one of ALLOWED_CONDITIONS (with spaces)
+ * - status (optional)           -> draft|available|reserved|completed
+ * - images (optional)           -> array of base64 jpeg strings (max 5 images)
+ */
+// Example input:
+//{
+//   "toyName": "Wooden Train Set",
+//   "description": "All tracks included.",
+//   "category": "Vehicles",
+//   "ageRange": "3-5",
+//   "condition": "Well used",
+//   "status": "available",
+//   "images": [
+//     "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD...",
+//     "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD..."
+//   ]
+// }
+router.post("/", authenticateFirebaseToken, async (req: AuthRequest, res: Response) => {
+    try {
+        if (!req.user) return res.status(401).json({ error: "Unauthenticated" });
+        const ownerId = req.user.uid;
+
+        // Ensure user exists
+        await ensureUserRow(ownerId, req.user.email ?? null);
+
+        const toyName = pickString(req.body.toyName ?? req.body.toy_name);
+        if (!toyName) return res.status(400).json({ error: "toyName is required" });
+
+        const toyNameCheck = validateLength(toyName, MAX_TOY_NAME_LENGTH, "toyName");
+        if (!toyNameCheck.valid) return res.status(400).json({ error: toyNameCheck.error });
+
+        const description = pickString(req.body.description);
+        const descCheck = validateLength(description, MAX_DESCRIPTION_LENGTH, "description");
+        if (!descCheck.valid) return res.status(400).json({ error: descCheck.error });
+
+        const category = validateCategory(req.body.category);
+        if (req.body.category != null && category == null) {
+            return res.status(400).json({ error: "Invalid category", allowed: Array.from(ALLOWED_CATEGORIES) });
+        }
+
+        const ageRange = pickString(req.body.ageRange ?? req.body.age_range);
+        const ageRangeCheck = validateLength(ageRange, MAX_AGE_RANGE_LENGTH, "ageRange");
+        if (!ageRangeCheck.valid) return res.status(400).json({ error: ageRangeCheck.error });
+
+        const condition = validateCondition(req.body.condition);
+        if (req.body.condition != null && condition == null) {
+            return res.status(400).json({ error: "Invalid condition", allowed: Array.from(ALLOWED_CONDITIONS) });
+        }
+
+        const status = normalizeStatus(req.body.status) ?? "available";
+
+        // Optional images: req.body.images is an array of base64 jpeg strings
+        const imagesInput = req.body.images;
+        let images: string[] = [];
+
+        if (imagesInput !== undefined && imagesInput !== null) {
+            if (!Array.isArray(imagesInput)) {
+                return res.status(400).json({ error: "images must be an array of base64 JPEG strings" });
+            }
+            if (imagesInput.length > MAX_IMAGES) {
+                return res.status(400).json({ error: `Too many images (max ${MAX_IMAGES})` });
+            }
+
+            const validated: string[] = [];
+            for (let i = 0; i < imagesInput.length; i++) {
+                const v = parseAndValidateJpegBase64(imagesInput[i]);
+                if (!v.ok) {
+                    return res.status(400).json({ error: `images[${i}]: ${v.error}` });
+                }
+                validated.push(v.b64);
+            }
+            images = validated;
+        }
+
+        // Optional pre-check for nicer 409 (still handle duplicates on insert too)
+        const existingToy = await querySnowflake(
+            `SELECT 1 FROM TOY_APP.PUBLIC.TOYS WHERE TOY_NAME = ? LIMIT 1`,
+            [toyName]
+        );
+        if (existingToy.length > 0) {
+            return res.status(409).json({ error: "A toy with this name already exists" });
+        }
+
+        // Insert toy
+        try {
+            await querySnowflake(
+                `INSERT INTO TOY_APP.PUBLIC.TOYS
+         (TOY_NAME, DESCRIPTION, CATEGORY, AGE_RANGE, CONDITION, OWNER_ID, STATUS)
+         VALUES (?, ?, ?, ?, ?, ?, ?)`,
+                [toyName, description, category, ageRange, condition, ownerId, status]
+            );
+        } catch (e: any) {
+            const msg = String(e?.message ?? e ?? "").toLowerCase();
+            if (msg.includes("duplicate") || msg.includes("primary key")) {
+                return res.status(409).json({ error: "A toy with this name already exists" });
+            }
+            throw e;
+        }
+
+        // Insert images (best-effort; no transaction)
+        const imageIds: string[] = [];
+        for (let i = 0; i < images.length; i++) {
+            const imageId = `IMG_${Date.now()}_${i}`;
+            imageIds.push(imageId);
+
+            await querySnowflake(
+                `INSERT INTO TOY_APP.PUBLIC.TOY_IMAGES (IMAGE_ID, TOY_NAME, IMAGE_DATA)
+         VALUES (?, ?, ?)`,
+                [imageId, toyName, images[i]]
+            );
+        }
+
+        // Add toyName to USERS.DONATED_TOYS (avoid duplicates)
+        await querySnowflake(
+            `UPDATE TOY_APP.PUBLIC.USERS
+       SET DONATED_TOYS =
+         CASE
+           WHEN ARRAY_CONTAINS(TO_VARIANT(?), DONATED_TOYS) THEN DONATED_TOYS
+           ELSE ARRAY_APPEND(DONATED_TOYS, ?)
+         END
+       WHERE USER_ID = ?`,
+            [toyName, toyName, ownerId]
+        );
+
+        const created = await querySnowflake(
+            `SELECT
+         TOY_NAME    AS "toyName",
+         DESCRIPTION AS "description",
+         CATEGORY    AS "category",
+         AGE_RANGE   AS "ageRange",
+         CONDITION   AS "condition",
+         OWNER_ID    AS "ownerId",
+         STATUS      AS "status",
+         CREATED_AT  AS "createdAt"
+       FROM TOY_APP.PUBLIC.TOYS
+       WHERE TOY_NAME = ?
+       LIMIT 1`,
+            [toyName]
+        );
+
+        return res.status(201).json({
+            toy: created[0] ?? { toyName },
+            imageIds,
+        });
+    } catch (err) {
+        console.error("POST /toys failed:", err);
+        return res.status(500).json({ error: "Failed to create toy" });
     }
 });
 
