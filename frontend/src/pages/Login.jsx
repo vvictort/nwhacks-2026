@@ -5,10 +5,12 @@ import { motion, AnimatePresence } from "framer-motion";
 import NeuCard from "../components/atoms/NeuCard";
 import NeuInput from "../components/atoms/NeuInput";
 import NeuButton from "../components/atoms/NeuButton";
-import { signInWithGoogle, mockSignIn } from "../utils/authService";
+import { signInWithGoogle } from "../utils/authService";
+import { useAuth } from "../hooks/useAuth";
 
 const Login = () => {
   const navigate = useNavigate();
+  const { loginWithMock } = useAuth();
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -70,11 +72,11 @@ const Login = () => {
 
       // Simulate login (replace with actual API call)
       // For demo: check if credentials match a test account
-      if (formData.email === "demo@example.com" && formData.password === "password") {
-        await mockSignIn(formData.email);
+      if (formData.email === "demo@example.com" && formData.password === "pitfwd123") {
+        await loginWithMock(formData.email);
         navigate("/dashboard");
       } else {
-        setErrors({ submit: "Invalid email or password. Try demo@example.com / password" });
+        setErrors({ submit: "Invalid email or password. Try demo@example.com / pitfwd123" });
       }
     } catch (error) {
       console.error('Login error:', error);
@@ -302,7 +304,7 @@ const Login = () => {
         className="mt-6 text-center">
         <div className="inline-block bg-gradient-to-r from-purple-100 to-pink-100 px-6 py-3 rounded-full shadow-lg">
           <p className="text-sm text-purple-800 font-medium">
-            💡 <span className="font-bold">Try it:</span> demo@example.com / password
+            💡 <span className="font-bold">Try it:</span> demo@example.com / pitfwd123
           </p>
         </div>
       </motion.div>
