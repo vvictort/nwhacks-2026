@@ -23,6 +23,9 @@ const Donate = () => {
   const [images, setImages] = useState([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errors, setErrors] = useState({});
+  const [showDetectButton, setShowDetectButton] = useState(false);
+  const [isDetecting, setIsDetecting] = useState(false);
+
 
   const categories = [
     "Action Figures",
@@ -42,9 +45,90 @@ const Donate = () => {
     { value: "fair", label: "Fair", emoji: "👌" },
   ];
 
-  const ageRanges = ["0-2 years", "3-5 years", "6-8 years", "9-12 years", "All ages"];
+  const ageRanges = ["0-2 years", "3-5 years", "6-12 years", "All ages"];
 
-  const acceptedFormats = ".jpg,.jpeg,.png,.webp,.heic";
+  const acceptedFormats = ".jpg,.jpeg,.png,.webp,.heicg";
+
+  const handleDetectCategories = async () => {
+    if (!images.length || !formData.description.trim()) {
+      setErrors({
+        detect: images.length === 0 ? 'Please upload an image' : 'Please add a description'
+      });
+      return;
+    }
+
+    setIsDetecting(true);
+    setErrors({});
+
+    try {
+      // Convert first image to base64
+      const firstImage = images[0].file;
+      const reader = new FileReader();
+      const base64Promise = new Promise((resolve) => {
+        reader.onload = (e) => resolve(e.target.result);
+        reader.readAsDataURL(firstImage);
+      });
+
+      const image_base64 = await base64Promise;
+
+      // Call Gemini API
+      const response = await fetch('http://localhost:3000/gemini/classify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          image_base64,
+          text: formData.description
+        })
+      });
+
+      if (!response.ok) throw new Error('Classification failed');
+
+      const aiResult = await response.json();
+      console.log('AI Result:', aiResult);
+
+      // Map AI results to your form categories
+      const categoryMap = {
+        'Figures': 'Action Figures',
+        'Building': 'Building Blocks',
+        'Vehicles': 'Vehicles',
+        'Puzzles': 'Puzzles & Games',
+        'Plush': 'Dolls & Stuffed Animals',
+        'STEM': 'Educational Toys',
+        'Active': 'Outdoor Toys',
+        'Crafts': 'Arts & Crafts',
+        'Pretend': 'Other',
+        'Games': 'Puzzles & Games'
+      };
+
+      const conditionMap = {
+        'New in Box': 'like-new',
+        'Like new': 'like-new',
+        'Lightly used': 'good',
+        'Well used': 'fair',
+        'Heavily used': 'fair'
+      };
+
+      const ageMap = {
+        'toddler': '0-2 years',
+        'preschooler': '3-5 years',
+        'child': '6-12 years'
+      };
+
+      // Auto-fill form
+      setFormData(prev => ({
+        ...prev,
+        category: categoryMap[aiResult.toy_category] || 'Other',
+        condition: conditionMap[aiResult.condition] || 'good',
+        ageRange: ageMap[aiResult.age_range] || '3-5 years'
+      }));
+
+    } catch (error) {
+      console.error('Detection error:', error);
+      setErrors({ detect: 'Failed to detect categories. Please try again.' });
+    } finally {
+      setIsDetecting(false);
+    }
+  };
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -52,6 +136,7 @@ const Donate = () => {
     if (errors[name]) {
       setErrors((prev) => ({ ...prev, [name]: null }));
     }
+    setShowDetectButton(true);
   };
 
   const handleImageUpload = (e) => {
@@ -71,6 +156,7 @@ const Donate = () => {
 
     setImages((prev) => [...prev, ...newImages]);
     setErrors((prev) => ({ ...prev, images: null }));
+    setShowDetectButton(true);
   };
 
   const removeImage = (id) => {
@@ -132,72 +218,6 @@ const Donate = () => {
               onChange={handleInputChange}
             />
             {errors.toyName && <p className="text-red-500 text-sm mt-1 ml-4">{errors.toyName}</p>}
-          </div>
-
-          {/* Category */}
-          <div>
-            <label className="ml-4 text-sm font-semibold text-neo-bg-600 block mb-2">Category</label>
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-              {categories.map((cat) => (
-                <button
-                  key={cat}
-                  type="button"
-                  onClick={() => {
-                    setFormData((prev) => ({ ...prev, category: cat }));
-                    setErrors((prev) => ({ ...prev, category: null }));
-                  }}
-                  className={`p-3 rounded-xl text-sm font-medium transition-all duration-200 ${
-                    formData.category === cat
-                      ? "bg-neo-primary-500 text-white shadow-lg"
-                      : "bg-neo-bg-100 text-neo-bg-700 shadow-neo-inset hover:bg-neo-bg-200"
-                  }`}>
-                  {cat}
-                </button>
-              ))}
-            </div>
-            {errors.category && <p className="text-red-500 text-sm mt-2 ml-4">{errors.category}</p>}
-          </div>
-
-          {/* Condition */}
-          <div>
-            <label className="ml-4 text-sm font-semibold text-neo-bg-600 block mb-2">Condition</label>
-            <div className="flex gap-4">
-              {conditions.map((cond) => (
-                <button
-                  key={cond.value}
-                  type="button"
-                  onClick={() => {
-                    setFormData((prev) => ({ ...prev, condition: cond.value }));
-                    setErrors((prev) => ({ ...prev, condition: null }));
-                  }}
-                  className={`flex-1 p-4 rounded-xl text-center transition-all duration-200 ${
-                    formData.condition === cond.value
-                      ? "bg-neo-primary-500 text-white shadow-lg"
-                      : "bg-neo-bg-100 text-neo-bg-700 shadow-neo-inset hover:bg-neo-bg-200"
-                  }`}>
-                  <span className="text-2xl block mb-1">{cond.emoji}</span>
-                  <span className="text-sm font-medium">{cond.label}</span>
-                </button>
-              ))}
-            </div>
-            {errors.condition && <p className="text-red-500 text-sm mt-2 ml-4">{errors.condition}</p>}
-          </div>
-
-          {/* Age Range */}
-          <div>
-            <label className="ml-4 text-sm font-semibold text-neo-bg-600 block mb-2">Suitable Age Range</label>
-            <select
-              name="ageRange"
-              value={formData.ageRange}
-              onChange={handleInputChange}
-              className="w-full bg-neo-bg-100 rounded-xl shadow-neo-inset px-6 py-4 text-neo-bg-800 focus:outline-none focus:ring-2 focus:ring-neo-primary-300/50 transition-all duration-200">
-              <option value="">Select age range</option>
-              {ageRanges.map((age) => (
-                <option key={age} value={age}>
-                  {age}
-                </option>
-              ))}
-            </select>
           </div>
 
           {/* Description */}
@@ -282,6 +302,108 @@ const Donate = () => {
             </div>
             {errors.images && <p className="text-red-500 text-sm mt-2 ml-4">{errors.images}</p>}
             <p className="text-neo-bg-400 text-xs mt-2 ml-4">Accepted formats: JPG, PNG, WebP, HEIC</p>
+          </div>
+
+          {/* AI Detection Button - NEO PURPLE THEME */}
+          <div className="pt-6 pb-2 mx-4">
+            <NeuButton
+              type="button"
+              variant="secondary"
+              className="w-full bg-neo-primary-500 hover:bg-neo-primary-600 text-white shadow-2xl shadow-neo-primary-500/25 hover:shadow-neo-primary-500/40 transform hover:-translate-y-0.5 transition-all duration-300 border-0 font-semibold text-lg py-5 px-6"
+              onClick={handleDetectCategories}
+              disabled={isDetecting}
+            >
+              {isDetecting ? (
+                <>
+                  <motion.span
+                    animate={{ rotate: 360 }}
+                    transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                    className="text-yellow-300 text-xl mr-2"
+                  >
+                    ✨
+                  </motion.span>
+                  <span>Analyzing toy...</span>
+                </>
+              ) : (
+                <>
+                  <span className="text-2xl mr-3">🤖</span>
+                  <span className="font-bold">Detect Categories Automatically</span>
+                  <span className="ml-3 text-xs bg-white/20 px-3 py-1 rounded-full font-medium">AI Magic</span>
+                </>
+              )}
+            </NeuButton>
+            {errors.detect && (
+              <p className="text-red-500 text-sm mt-3 text-center bg-red-50/50 p-2 rounded-xl">{errors.detect}</p>
+            )}
+            <p className="text-neo-bg-500 text-xs mt-2 text-center italic opacity-80">
+              AI will analyze your photo + description in seconds ✨
+            </p>
+          </div>
+
+          {/* Category */}
+          <div>
+            <label className="ml-4 text-sm font-semibold text-neo-bg-600 block mb-2">Category</label>
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+              {categories.map((cat) => (
+                <button
+                  key={cat}
+                  type="button"
+                  onClick={() => {
+                    setFormData((prev) => ({ ...prev, category: cat }));
+                    setErrors((prev) => ({ ...prev, category: null }));
+                  }}
+                  className={`p-3 rounded-xl text-sm font-medium transition-all duration-200 ${
+                    formData.category === cat
+                      ? "bg-neo-primary-500 text-white shadow-lg"
+                      : "bg-neo-bg-100 text-neo-bg-700 shadow-neo-inset hover:bg-neo-bg-200"
+                  }`}>
+                  {cat}
+                </button>
+              ))}
+            </div>
+            {errors.category && <p className="text-red-500 text-sm mt-2 ml-4">{errors.category}</p>}
+          </div>
+
+          {/* Condition */}
+          <div>
+            <label className="ml-4 text-sm font-semibold text-neo-bg-600 block mb-2">Condition</label>
+            <div className="flex gap-4">
+              {conditions.map((cond) => (
+                <button
+                  key={cond.value}
+                  type="button"
+                  onClick={() => {
+                    setFormData((prev) => ({ ...prev, condition: cond.value }));
+                    setErrors((prev) => ({ ...prev, condition: null }));
+                  }}
+                  className={`flex-1 p-4 rounded-xl text-center transition-all duration-200 ${
+                    formData.condition === cond.value
+                      ? "bg-neo-primary-500 text-white shadow-lg"
+                      : "bg-neo-bg-100 text-neo-bg-700 shadow-neo-inset hover:bg-neo-bg-200"
+                  }`}>
+                  <span className="text-2xl block mb-1">{cond.emoji}</span>
+                  <span className="text-sm font-medium">{cond.label}</span>
+                </button>
+              ))}
+            </div>
+            {errors.condition && <p className="text-red-500 text-sm mt-2 ml-4">{errors.condition}</p>}
+          </div>
+
+          {/* Age Range */}
+          <div>
+            <label className="ml-4 text-sm font-semibold text-neo-bg-600 block mb-2">Suitable Age Range</label>
+            <select
+              name="ageRange"
+              value={formData.ageRange}
+              onChange={handleInputChange}
+              className="w-full bg-neo-bg-100 rounded-xl shadow-neo-inset px-6 py-4 text-neo-bg-800 focus:outline-none focus:ring-2 focus:ring-neo-primary-300/50 transition-all duration-200">
+              <option value="">Select age range</option>
+              {ageRanges.map((age) => (
+                <option key={age} value={age}>
+                  {age}
+                </option>
+              ))}
+            </select>
           </div>
 
           {/* Submit */}
