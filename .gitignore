@@ -1,5 +1,4 @@
 .env
-backend/node_modules
 
 # Firebase backend service key
 backend/service-account.json
