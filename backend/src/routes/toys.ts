@@ -1,9 +1,9 @@
 // src/routes/toys.ts
-import type {Response} from "express";
-import {Router} from "express";
-import {authenticateFirebaseToken} from "../middleware/authMiddleware";
-import type {AuthRequest} from "../types/auth-request";
-import {querySnowflake} from "../config/snowflake";
+import type { Response } from "express";
+import { Router } from "express";
+import { authenticateFirebaseToken } from "../middleware/authMiddleware";
+import type { AuthRequest } from "../types/auth-request";
+import { querySnowflake } from "../config/snowflake";
 import {
     ALLOWED_CATEGORIES,
     ALLOWED_CONDITIONS,
@@ -22,6 +22,37 @@ import {
 } from "../util/helpers";
 
 const router = Router();
+
+/**
+ * GET /toys (public)
+ * Lists available toys.
+ * NOTE: This must be defined BEFORE /:toyName routes to avoid route conflicts
+ */
+router.get("/", async (_req, res: Response) => {
+    try {
+        const toys = await querySnowflake(
+            `SELECT
+                 TOY_NAME    AS "toyName",
+                 DESCRIPTION AS "description",
+                 CATEGORY    AS "category",
+                 AGE_RANGE   AS "ageRange",
+                 CONDITION   AS "condition",
+                 OWNER_ID    AS "ownerId",
+                 STATUS      AS "status",
+                 CREATED_AT  AS "createdAt"
+             FROM TOY_APP.PUBLIC.TOYS
+             WHERE COALESCE(STATUS, 'available') = 'available'
+             ORDER BY CREATED_AT DESC
+                 LIMIT ?`,
+            [50]
+        );
+
+        return res.status(200).json({ toys });
+    } catch (err) {
+        console.error("GET /toys failed:", err);
+        return res.status(500).json({ error: "Failed to fetch toys" });
+    }
+});
 
 // GET /toys/:toyName/images (public)
 router.get("/:toyName/images", async (req, res) => {
@@ -186,14 +217,65 @@ router.patch("/:toyName", authenticateFirebaseToken, async (req: AuthRequest, re
     }
 });
 
-
 /**
- * GET /toys (public)
- * Lists available toys.
+ * POST /toys/:toyName/claim (auth required)
+ * Claims a toy - marks it as reserved and adds it to the user's received toys.
+ * Only works for available toys that the user doesn't own.
  */
-router.get("/", async (_req, res: Response) => {
+router.post("/:toyName/claim", authenticateFirebaseToken, async (req: AuthRequest, res: Response) => {
+    const toyName = req.params.toyName;
+
     try {
-        const toys = await querySnowflake(
+        if (!req.user) return res.status(401).json({ error: "Unauthenticated" });
+        const claimerId = req.user.uid;
+        await ensureUserRow(claimerId, req.user.email ?? null);
+
+        // Check toy exists and is available
+        const existing = await querySnowflake<{ ownerId: string; status: string }>(
+            `SELECT OWNER_ID AS "ownerId", STATUS AS "status"
+             FROM TOY_APP.PUBLIC.TOYS
+             WHERE TOY_NAME = ?
+             LIMIT 1`,
+            [toyName]
+        );
+
+        if (!existing.length) return res.status(404).json({ error: "Toy not found" });
+
+        const toy = existing[0];
+
+        // Can't claim your own toy
+        if (toy.ownerId === claimerId) {
+            return res.status(400).json({ error: "You cannot claim your own toy" });
+        }
+
+        // Can only claim available toys
+        if (toy.status !== 'available') {
+            return res.status(400).json({ error: "This toy is no longer available" });
+        }
+
+        // Update toy status to reserved
+        await querySnowflake(
+            `UPDATE TOY_APP.PUBLIC.TOYS
+             SET STATUS = 'reserved', CLAIMED_BY = ?
+             WHERE TOY_NAME = ?`,
+            [claimerId, toyName]
+        );
+
+        // Add to claimer's wish_list (claimed/received toys)
+        await querySnowflake(
+            `UPDATE TOY_APP.PUBLIC.USERS
+             SET WISH_LIST =
+               CASE
+                 WHEN WISH_LIST IS NULL THEN ARRAY_CONSTRUCT(?)
+                 WHEN ARRAY_CONTAINS(TO_VARIANT(?), WISH_LIST) THEN WISH_LIST
+                 ELSE ARRAY_APPEND(WISH_LIST, ?)
+               END
+             WHERE USER_ID = ?`,
+            [toyName, toyName, toyName, claimerId]
+        );
+
+        // Fetch updated toy
+        const updated = await querySnowflake(
             `SELECT
                  TOY_NAME    AS "toyName",
                  DESCRIPTION AS "description",
@@ -204,18 +286,21 @@ router.get("/", async (_req, res: Response) => {
                  STATUS      AS "status",
                  CREATED_AT  AS "createdAt"
              FROM TOY_APP.PUBLIC.TOYS
-             WHERE COALESCE(STATUS, 'available') = 'available'
-             ORDER BY CREATED_AT DESC
-                 LIMIT ?`,
-            [50]
+             WHERE TOY_NAME = ?
+             LIMIT 1`,
+            [toyName]
         );
 
-        return res.status(200).json({ toys });
+        return res.status(200).json({
+            message: "Toy claimed successfully!",
+            toy: updated[0]
+        });
     } catch (err) {
-        console.error("GET /toys failed:", err);
-        return res.status(500).json({ error: "Failed to fetch toys" });
+        console.error("POST /toys/:toyName/claim failed:", err);
+        return res.status(500).json({ error: "Failed to claim toy" });
     }
 });
+
 
 /**
  * POST /toys (auth required)

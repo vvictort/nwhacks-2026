@@ -9,6 +9,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import confetti from "canvas-confetti";
 import { apiClient } from "../utils/apiClient";
 import { sanitizeText } from "../utils/sanitize";
+import { useAuth } from "../hooks/useAuth";
 
 // Compress image to reduce file size (target ~1MB max)
 const compressImage = (file, maxWidth = 1200, quality = 0.7) => {
@@ -45,6 +46,7 @@ const compressImage = (file, maxWidth = 1200, quality = 0.7) => {
 
 const Donate = () => {
   const navigate = useNavigate();
+  const { refreshUserProfile } = useAuth();
   const fileInputRef = useRef(null);
   const cameraInputRef = useRef(null);
   const videoRef = useRef(null);
@@ -394,6 +396,9 @@ const Donate = () => {
         origin: { y: 0.6 },
         colors: ["#8c97c9", "#bb88a7", "#f5f2e8", "#ffd700"],
       });
+
+      // Refresh user profile so Dashboard shows the new donation
+      await refreshUserProfile();
 
       // Small delay to let users enjoy the confetti
       await new Promise((resolve) => setTimeout(resolve, 1500));

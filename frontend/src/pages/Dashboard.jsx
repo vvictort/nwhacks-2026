@@ -16,6 +16,10 @@ const Dashboard = () => {
   const [recentForwards, setRecentForwards] = useState([]);
   const [forwardsLoading, setForwardsLoading] = useState(true);
 
+  // State for claimed/received toys
+  const [claimedToys, setClaimedToys] = useState([]);
+  const [claimedLoading, setClaimedLoading] = useState(true);
+
   // Use real data from Firebase user and backend userProfile
   const displayName = user?.displayName || userProfile?.email?.split("@")[0] || "User";
   const userAvatar = user?.photoURL || `https://api.dicebear.com/7.x/avataaars/svg?seed=${displayName}`;
@@ -93,6 +97,30 @@ const Dashboard = () => {
     },
   ];
 
+  // Mock claimed toys for demo account
+  const mockClaimedToys = [
+    {
+      id: 'claimed-1',
+      toyName: 'LEGO Star Wars Millennium Falcon',
+      description: 'Ultimate Collector Series set. 7,541 pieces of pure joy!',
+      category: 'building_blocks',
+      ageRange: '16+',
+      status: 'reserved',
+      createdAt: '2026-01-15T10:00:00Z',
+      condition: 'excellent',
+    },
+    {
+      id: 'claimed-2',
+      toyName: 'Vintage Nintendo 64 Bundle',
+      description: 'N64 with 4 controllers and 12 games including GoldenEye and Mario Kart!',
+      category: 'electronic',
+      ageRange: '8-12',
+      status: 'reserved',
+      createdAt: '2026-01-10T14:30:00Z',
+      condition: 'good',
+    },
+  ];
+
   // Fetch toy details for recently forwarded section (max 5)
   useEffect(() => {
     const fetchRecentForwards = async () => {
@@ -140,6 +168,54 @@ const Dashboard = () => {
 
     if (!profileLoading) {
       fetchRecentForwards();
+    }
+  }, [userProfile, profileLoading]);
+
+  // Fetch claimed/received toys
+  useEffect(() => {
+    const fetchClaimedToys = async () => {
+      // If mock user, use hardcoded claimed toys
+      if (isMockUser) {
+        setClaimedToys(mockClaimedToys);
+        setClaimedLoading(false);
+        return;
+      }
+
+      if (!userProfile?.wishList?.length) {
+        setClaimedToys([]);
+        setClaimedLoading(false);
+        return;
+      }
+
+      try {
+        const toyNames = userProfile.wishList.slice(0, 10);
+        const toyPromises = toyNames.map(async (toyName) => {
+          try {
+            const toy = await publicApiClient.get(`/toys/${encodeURIComponent(toyName)}`);
+            return toy;
+          } catch (error) {
+            console.error(`Failed to fetch claimed toy: ${toyName}`, error);
+            return null;
+          }
+        });
+
+        const toys = await Promise.all(toyPromises);
+        const validToys = toys.filter((t) => t !== null);
+        const sorted = validToys.sort((a, b) => {
+          const dateA = new Date(a.createdAt || 0);
+          const dateB = new Date(b.createdAt || 0);
+          return dateB - dateA;
+        });
+        setClaimedToys(sorted.slice(0, 5));
+      } catch (error) {
+        console.error("Failed to fetch claimed toys:", error);
+      } finally {
+        setClaimedLoading(false);
+      }
+    };
+
+    if (!profileLoading) {
+      fetchClaimedToys();
     }
   }, [userProfile, profileLoading]);
 
@@ -333,6 +409,56 @@ const Dashboard = () => {
                       View All Forwards ({userProfile.donatedToys.length})
                     </NeuButton>
                   </Link>
+                </div>
+              )}
+            </>
+          )}
+        </NeuCard>
+      </section>
+
+      {/* Claimed/Received Toys */}
+      <section>
+        <h2 className="text-3xl font-bold font-display text-neo-accent-700 mb-6">🎁 Your Claimed Toys</h2>
+        <NeuCard className="p-6">
+          {claimedLoading || profileLoading ? (
+            <div className="text-center py-8">
+              <p className="text-neo-bg-500">Loading your claimed toys...</p>
+            </div>
+          ) : claimedToys.length === 0 ? (
+            <div className="text-center py-8">
+              <div className="text-4xl mb-3">🧸</div>
+              <p className="text-neo-bg-600 mb-4">You haven't claimed any toys yet.</p>
+              <Link to="/browse" className="inline-block">
+                <NeuButton variant="accent" className="text-sm">
+                  Browse Available Toys
+                </NeuButton>
+              </Link>
+            </div>
+          ) : (
+            <>
+              <div className="space-y-4">
+                {claimedToys.map((toy, index) => {
+                  const statusInfo = getStatusDisplay(toy.status);
+                  return (
+                    <div
+                      key={toy.toyName || index}
+                      className="flex items-center justify-between p-4 rounded-2xl bg-gradient-to-r from-neo-accent-50 to-neo-bg-50 shadow-neo-inset">
+                      <div>
+                        <h4 className="font-bold text-neo-bg-800">{toy.toyName}</h4>
+                        <p className="text-sm text-neo-bg-500">Claimed on {formatDate(toy.createdAt)}</p>
+                      </div>
+                      <span className={`px-4 py-1 rounded-full text-sm font-medium ${statusInfo.style}`}>
+                        {statusInfo.label}
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
+              {userProfile?.wishList?.length > 5 && (
+                <div className="mt-6 text-center">
+                  <NeuButton variant="default" className="text-sm">
+                    View All Claimed Toys ({userProfile.wishList.length})
+                  </NeuButton>
                 </div>
               )}
             </>

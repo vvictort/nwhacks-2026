@@ -110,7 +110,7 @@ const mockBrowseToys = [
 ];
 
 const Browse = () => {
-    const { user } = useAuth();
+    const { user, refreshUserProfile } = useAuth();
     const [toys, setToys] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -119,28 +119,30 @@ const Browse = () => {
     const [selectedAge, setSelectedAge] = useState('all');
 
     // Check if this is a mock/demo user
+    // eslint-disable-next-line no-unused-vars
     const isMockUser = user?.uid === 'mock-user-id';
 
     useEffect(() => {
         fetchToys();
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [isMockUser]);
+    }, []);
 
     const fetchToys = async () => {
-        // If mock user, use hardcoded toys
-        if (isMockUser) {
-            setToys(mockBrowseToys);
-            setLoading(false);
-            return;
-        }
-
         try {
             setLoading(true);
             setError(null);
 
-            // Fetch from backend GET /toys endpoint
+            // Always try to fetch from backend GET /toys endpoint first
             const data = await publicApiClient.get('/toys');
-            setToys(data.toys || []);
+
+            // If API returns toys, use them; otherwise fall back to mock data
+            if (data.toys && data.toys.length > 0) {
+                setToys(data.toys);
+            } else {
+                // No toys in database, use mock data for demo
+                console.log('No toys in database, using mock data for demo...');
+                setToys(mockBrowseToys);
+            }
         } catch (err) {
             console.error('Error fetching toys:', err);
 
@@ -196,6 +198,17 @@ const Browse = () => {
         setSelectedAge('all');
     };
 
+    // Handle when a toy is claimed - update its status in the list
+    const handleToyClaimed = async (toyName) => {
+        setToys(prevToys => prevToys.map(toy =>
+            toy.toyName === toyName
+                ? { ...toy, status: 'reserved' }
+                : toy
+        ));
+        // Refresh user profile so Dashboard shows claimed toys
+        await refreshUserProfile();
+    };
+
     return (
         <div className="max-w-7xl mx-auto py-10">
             {/* Header */}
@@ -204,8 +217,8 @@ const Browse = () => {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6 }}
                 className="text-center mb-12">
-                <h1 className="text-5xl font-bold font-display text-neo-primary-800 bg-clip-text text-transparent mb-4">
-                    Browse Free Toys
+                <h1 className="text-5xl font-bold font-display text-neo-primary-800 mb-4">
+                    Browse Toys
                 </h1>
                 <p className="text-neo-bg-600 text-lg max-w-2xl mx-auto">
                     Discover toys forwarded by generous families. All items are free, verified, and ready to bring joy to your children.
@@ -338,7 +351,7 @@ const Browse = () => {
                                             initial={{ opacity: 0, y: 20 }}
                                             animate={{ opacity: 1, y: 0 }}
                                             transition={{ duration: 0.3, delay: index * 0.1 }}>
-                                            <ToyCard toy={toy} />
+                                            <ToyCard toy={toy} onClaimed={handleToyClaimed} />
                                         </motion.div>
                                     ))}
                                 </motion.div>
