@@ -1,3 +1,4 @@
+// /routes/toys.ts
 import { Router } from "express";
 import { authenticateFirebaseToken } from "../middleware/authMiddleware";
 import { AuthRequest } from "../types/auth-request";
@@ -5,20 +6,42 @@ import { AuthRequest } from "../types/auth-request";
 const router = Router();
 
 // POST /toys (auth required)
-router.post("/toys", authenticateFirebaseToken, async (req: AuthRequest, res) => {
-    // TODO: create toy
-    return res.status(201).json({ message: "TODO: created toy" });
+router.post("/", authenticateFirebaseToken, async (req: AuthRequest, res) => {
+    // Hardcoded "created toy" response (ignores request body for now)
+    return res.status(201).json({
+        toy: {
+            toyName: "Hot Wheels Track Set",
+            description: "Includes 8 cars, one ramp missing",
+            category: "vehicles",
+            ageRange: "5-7",
+            condition: "used",
+            ownerId: req.user?.uid ?? "demo_uid_123",
+            status: "available",
+            createdAt: "2026-01-17T22:55:30.000Z",
+        },
+    });
 });
 
 // PATCH /toys/:toyName (auth required)
-router.patch("/toys/:toyName", authenticateFirebaseToken, async (req: AuthRequest, res) => {
+router.patch("/:toyName", authenticateFirebaseToken, async (req: AuthRequest, res) => {
     const { toyName } = req.params;
-    // TODO: update toy
-    return res.status(200).json({ message: "TODO: updated toy", toyName });
+
+    return res.status(200).json({
+        toy: {
+            toyName,
+            description: "Updated description (hardcoded)",
+            category: "building_blocks",
+            ageRange: "5-7",
+            condition: "good",
+            ownerId: req.user?.uid ?? "demo_uid_123",
+            status: "draft",
+            createdAt: "2026-01-17T22:55:30.000Z",
+        },
+    });
 });
 
-// GET /toys (public)
-router.get("/toys", async (_req, res) => {
+// GET /toys/ (public)
+router.get("/", async (_req, res) => {
     return res.status(200).json({
         toys: [
             {
@@ -55,11 +78,20 @@ router.get("/toys", async (_req, res) => {
     });
 });
 
-// GET /toys/:toyName (public, optional but usually needed)
-router.get("/toys/:toyName", async (req, res) => {
+// GET /toys/:toyName (public)
+router.get("/:toyName", async (req, res) => {
     const { toyName } = req.params;
-    // TODO: fetch toy details
-    return res.status(200).json({ toyName });
+
+    return res.status(200).json({
+        toyName,
+        description: "Toy details (hardcoded)",
+        category: "building_blocks",
+        ageRange: "5-7",
+        condition: "good",
+        ownerId: "demo_uid_1",
+        status: "available",
+        createdAt: "2026-01-17T22:41:10.123Z",
+    });
 });
 
 export default router;
