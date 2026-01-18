@@ -17,7 +17,7 @@ async function main() {
     await (0, snowflake_1.connectSnowflake)();
     const app = (0, express_1.default)();
     app.use((0, cors_1.default)({
-        origin: ["http://localhost:5173", "http://155.138.207.178:5173"],
+        origin: ["http://localhost:5173", "http://playitfwd.tech:5173"],
         optionsSuccessStatus: 200,
     }));
     app.use(rateLimiter_1.generalLimiter);
