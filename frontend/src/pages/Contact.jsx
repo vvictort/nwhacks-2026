@@ -12,15 +12,16 @@ const Contact = () => {
           <NeuCard title="Send us a message">
             <form className="flex flex-col gap-6">
               <div className="grid md:grid-cols-2 gap-6">
-                <NeuInput label="Name" placeholder="Your Name" />
-                <NeuInput label="Email" type="email" placeholder="john@example.com" />
+                <NeuInput label="Name" placeholder="Your Name" maxLength={100} />
+                <NeuInput label="Email" type="email" placeholder="john@example.com" maxLength={255} />
               </div>
-              <NeuInput label="Subject" placeholder="How can we help?" />
+              <NeuInput label="Subject" placeholder="How can we help?" maxLength={200} />
               <div className="flex flex-col gap-2">
                 <label className="ml-4 text-sm font-semibold text-neo-bg-600">Message</label>
                 <textarea
                   className="w-full bg-neo-bg-100 rounded-xl shadow-neo-inset px-6 py-4 text-neo-bg-800 placeholder:text-neo-bg-400 focus:outline-none focus:ring-2 focus:ring-neo-primary-300/50 transition-all duration-200 min-h-[150px]"
-                  placeholder="Write your message here..."></textarea>
+                  placeholder="Write your message here..."
+                  maxLength={2000}></textarea>
               </div>
               <NeuButton variant="primary" className="self-start">
                 Send Message

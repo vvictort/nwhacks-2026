@@ -137,6 +137,7 @@ const Login = () => {
                 type="email"
                 name="email"
                 placeholder="john@example.com"
+                maxLength={255}
                 value={formData.email}
                 onChange={handleChange}
                 onBlur={() => handleBlur("email")}
@@ -159,6 +160,7 @@ const Login = () => {
                 type="password"
                 name="password"
                 placeholder="••••••••"
+                maxLength={100}
                 value={formData.password}
                 onChange={handleChange}
                 onBlur={() => handleBlur("password")}

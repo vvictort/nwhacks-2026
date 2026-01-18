@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
+// eslint-disable-next-line no-unused-vars
 import { motion, AnimatePresence } from "framer-motion";
 import NeuCard from "../components/atoms/NeuCard";
 import NeuInput from "../components/atoms/NeuInput";
@@ -73,6 +74,7 @@ const ForgotPassword = () => {
       });
     } catch (_error) {
       setErrors({ submit: "An error occurred. Please try again." });
+      console.error(_error);
     } finally {
       setIsLoading(false);
     }
@@ -126,6 +128,7 @@ const ForgotPassword = () => {
                     type="email"
                     name="email"
                     placeholder="your@email.com"
+                    maxLength={255}
                     value={formData.email}
                     onChange={handleChange}
                   />
@@ -145,6 +148,7 @@ const ForgotPassword = () => {
                     type="email"
                     name="confirmEmail"
                     placeholder="your@email.com"
+                    maxLength={255}
                     value={formData.confirmEmail}
                     onChange={handleChange}
                   />

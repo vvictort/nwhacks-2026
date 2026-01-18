@@ -127,6 +127,7 @@ const Donate = () => {
               label="Toy Name"
               name="toyName"
               placeholder="e.g., Wooden Train Set"
+              maxLength={100}
               value={formData.toyName}
               onChange={handleInputChange}
             />
@@ -205,6 +206,7 @@ const Donate = () => {
             <textarea
               name="description"
               placeholder="Describe the toy, its features, and any wear or missing parts..."
+              maxLength={1000}
               value={formData.description}
               onChange={handleInputChange}
               rows={4}
