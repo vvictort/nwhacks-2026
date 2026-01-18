@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import NeuCard from "../components/atoms/NeuCard";
 import NeuInput from "../components/atoms/NeuInput";
 import NeuButton from "../components/atoms/NeuButton";
+import NeuSelect from "../components/atoms/NeuSelect";
 
 const Register = () => {
   const navigate = useNavigate();
@@ -12,6 +13,8 @@ const Register = () => {
     firstName: "",
     lastName: "",
     email: "",
+    countryCode: "+1",
+    phoneNumber: "",
     password: "",
     confirmPassword: "",
   });
@@ -23,6 +26,15 @@ const Register = () => {
 
   const validateEmail = (email) => {
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  };
+
+  const validatePhoneNumber = (phone) => {
+    // Validates local phone numbers (without country code):
+    // 234-567-8900, (234) 567-8900, 234 567 8900, 2345678900, etc.
+    const digitsOnly = phone.replace(/[^\d]/g, '');
+    // Must have exactly 10 digits for North American numbers
+    // or 7-15 digits for international
+    return digitsOnly.length >= 7 && digitsOnly.length <= 15;
   };
 
   const getPasswordStrength = (password) => {
@@ -55,6 +67,12 @@ const Register = () => {
       newErrors.email = "Email is required";
     } else if (!validateEmail(formData.email)) {
       newErrors.email = "Please enter a valid email address";
+    }
+
+    if (!formData.phoneNumber.trim()) {
+      newErrors.phoneNumber = "Phone number is required";
+    } else if (!validatePhoneNumber(formData.phoneNumber)) {
+      newErrors.phoneNumber = "Please enter a valid phone number (e.g., 234-567-8900)";
     }
 
     if (!formData.password) {
@@ -100,6 +118,7 @@ const Register = () => {
       firstName: true,
       lastName: true,
       email: true,
+      phoneNumber: true,
       password: true,
       confirmPassword: true,
       terms: true,
@@ -306,6 +325,54 @@ const Register = () => {
                     exit={{ opacity: 0, height: 0 }}
                     className="text-red-500 text-xs mt-1 ml-4">
                     {errors.email}
+                  </motion.p>
+                )}
+              </AnimatePresence>
+            </div>
+
+            <div>
+              <label className="block text-sm font-semibold text-neo-bg-700 mb-2 ml-1">Phone Number</label>
+              <div className="grid grid-cols-[120px_1fr] gap-3 items-stretch">
+                <NeuSelect
+                  value={formData.countryCode}
+                  onChange={(e) => handleChange({ target: { name: 'countryCode', value: e.target.value } })}
+                  options={[
+                    { value: '+1', label: '🇺🇸 +1', emoji: '' },
+                    { value: '+1CA', label: '🇨🇦 +1', emoji: '' },
+                    { value: '+44', label: '🇬🇧 +44', emoji: '' },
+                    { value: '+61', label: '🇦🇺 +61', emoji: '' },
+                    { value: '+91', label: '🇮🇳 +91', emoji: '' },
+                    { value: '+86', label: '🇨🇳 +86', emoji: '' },
+                    { value: '+81', label: '🇯🇵 +81', emoji: '' },
+                    { value: '+82', label: '🇰🇷 +82', emoji: '' },
+                    { value: '+49', label: '🇩🇪 +49', emoji: '' },
+                    { value: '+33', label: '🇫🇷 +33', emoji: '' },
+                    { value: '+52', label: '🇲🇽 +52', emoji: '' },
+                    { value: '+55', label: '🇧🇷 +55', emoji: '' },
+                    { value: '+63', label: '🇵🇭 +63', emoji: '' },
+                    { value: '+84', label: '🇻🇳 +84', emoji: '' },
+                  ]}
+                />
+                <input
+                  type="tel"
+                  name="phoneNumber"
+                  placeholder="234-567-8900"
+                  maxLength={15}
+                  value={formData.phoneNumber}
+                  onChange={handleChange}
+                  onBlur={() => handleBlur("phoneNumber")}
+                  className="w-full px-5 py-3 rounded-2xl bg-neo-bg-100 shadow-neo-inset text-neo-bg-800 font-semibold placeholder:text-neo-bg-400 focus:outline-none focus:shadow-[inset_8px_8px_16px_#ddd9c8,inset_-8px_-8px_16px_#ffffff] transition-all"
+                />
+              </div>
+              <p className="text-xs text-neo-bg-500 mt-2 ml-1">We'll use this to contact you about toy pickups 📱</p>
+              <AnimatePresence>
+                {touched.phoneNumber && errors.phoneNumber && (
+                  <motion.p
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: "auto" }}
+                    exit={{ opacity: 0, height: 0 }}
+                    className="text-red-500 text-xs mt-1 ml-1">
+                    {errors.phoneNumber}
                   </motion.p>
                 )}
               </AnimatePresence>
