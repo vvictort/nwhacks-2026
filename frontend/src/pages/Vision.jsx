@@ -40,7 +40,7 @@ const Vision = () => {
         </NeuCard>
       </section>
 
-      <section>
+      {/* <section>
         <h2 className="text-3xl font-bold text-neo-primary-700 mb-10 text-center">Meet Our Team</h2>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
           {[1, 2, 3, 4].map((member) => (
@@ -51,7 +51,7 @@ const Vision = () => {
             </NeuCard>
           ))}
         </div>
-      </section>
+      </section> */}
     </div>
   );
 };
