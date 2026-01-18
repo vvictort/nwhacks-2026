@@ -1,12 +1,20 @@
 import React from "react";
+import { Link } from "react-router-dom";
 import NeuCard from "../components/atoms/NeuCard";
 import NeuButton from "../components/atoms/NeuButton";
 // eslint-disable-next-line no-unused-vars
 import { motion } from "framer-motion";
 
 const Home = () => {
+  const scrollToFeatured = () => {
+    const featuredSection = document.getElementById("featured-toys");
+    if (featuredSection) {
+      featuredSection.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  };
+
   return (
-    <div className="flex flex-col gap-16">
+    <div className="flex flex-col gap-32">
       {/* Hero Section */}
       <section className="text-center py-10">
         <motion.h1
@@ -29,10 +37,12 @@ const Home = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.5, duration: 0.5 }}>
-          <NeuButton variant="primary" className="text-lg px-8 py-4">
-            Start Sharing
-          </NeuButton>
-          <NeuButton variant="default" className="text-lg px-8 py-4">
+          <Link to="/register">
+            <NeuButton variant="primary" className="text-lg px-8 py-4">
+              Get Started
+            </NeuButton>
+          </Link>
+          <NeuButton variant="default" className="text-lg px-8 py-4" onClick={scrollToFeatured}>
             Browse Toys
           </NeuButton>
         </motion.div>
@@ -67,7 +77,7 @@ const Home = () => {
       </section>
 
       {/* Featured Toys */}
-      <section>
+      <section id="featured-toys">
         <h2 className="text-3xl font-bold text-neo-primary-700 mb-10 text-center">Featured Toys</h2>
         <div className="grid md:grid-cols-4 gap-6">
           {[1, 2, 3, 4].map((item) => (

@@ -1,64 +1,42 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { NavLink } from "react-router-dom";
 import { cn } from "../../utils/cn";
-// eslint-disable-next-line no-unused-vars
-import { motion } from "framer-motion";
 
 const Navbar = () => {
-  const [isScrolled, setIsScrolled] = useState(false);
-
-  useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 50);
-    };
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
-
   const navItems = [
-    { path: "/", label: "Home" },
-    { path: "/vision", label: "Vision" },
-    { path: "/contact", label: "Contact" },
-    { path: "/login", label: "Login" },
+    { path: "/", label: "Home", icon: "🏠" },
+    { path: "/vision", label: "Vision", icon: "👁️" },
+    { path: "/contact", label: "Contact", icon: "✉️" },
+    { path: "/login", label: "Login", icon: "🔐" },
   ];
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 pt-6 px-4 flex justify-center">
-      <motion.div
-        className="bg-neo-bg-100/90 backdrop-blur-md rounded-full shadow-neo px-6 py-3 md:px-8 md:py-4 flex items-center justify-center"
-        initial={false}
-        animate={{
-          // Only animate width horizontally - no vertical changes
-          width: isScrolled ? "auto" : "100%",
-          maxWidth: isScrolled ? "fit-content" : "56rem",
-        }}
-        transition={{
-          type: "tween",
-          duration: 0.5, // Slower, more gradual
-          ease: [0.4, 0, 0.2, 1], // Smooth cubic-bezier
-        }}>
-        <ul className="flex items-center justify-center gap-2 md:gap-4">
+      <div className="bg-neo-bg-100/95 backdrop-blur-xl rounded-full shadow-[0_8px_32px_rgba(0,0,0,0.12)] px-2 py-2 border border-neo-bg-200/50 max-w-2xl">
+        <ul className="flex items-center justify-center gap-1">
           {navItems.map((item) => (
             <li key={item.path}>
-              <NavLink to={item.path}>
-                {({ isActive }) => (
-                  <motion.div
-                    className={cn(
-                      "px-4 py-2 md:px-6 md:py-2 rounded-full font-medium transition-all duration-200 text-sm md:text-base whitespace-nowrap",
-                      isActive
-                        ? "bg-neo-primary-500 text-white shadow-lg scale-105"
-                        : "bg-transparent text-neo-bg-700 hover:text-neo-primary-700 hover:bg-neo-bg-200/50",
-                    )}
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}>
-                    {item.label}
-                  </motion.div>
-                )}
+              <NavLink
+                to={item.path}
+                className={({ isActive }) =>
+                  cn(
+                    "flex items-center gap-2 px-5 py-2.5 rounded-full font-semibold transition-all duration-300 relative overflow-hidden group",
+                    isActive
+                      ? "bg-neo-primary-500 text-white shadow-lg"
+                      : "text-neo-bg-700 hover:text-neo-primary-600 hover:bg-neo-bg-200"
+                  )
+                }
+              >
+                <span className="text-lg transition-transform duration-300 group-hover:scale-110 group-hover:rotate-6">
+                  {item.icon}
+                </span>
+                <span className="text-sm whitespace-nowrap">{item.label}</span>
+                <div className="absolute inset-0 bg-gradient-to-r from-neo-primary-400/0 via-neo-primary-400/10 to-neo-primary-400/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700" />
               </NavLink>
             </li>
           ))}
         </ul>
-      </motion.div>
+      </div>
     </nav>
   );
 };
