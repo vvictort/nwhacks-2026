@@ -204,7 +204,7 @@ const Browse = () => {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6 }}
                 className="text-center mb-12">
-                <h1 className="text-5xl font-bold font-display bg-gradient-to-r from-neo-primary-900 via-neo-accent-400 to-neo-primary-300 bg-clip-text text-transparent mb-4">
+                <h1 className="text-5xl font-bold font-display text-neo-primary-800 bg-clip-text text-transparent mb-4">
                     Browse Free Toys
                 </h1>
                 <p className="text-neo-bg-600 text-lg max-w-2xl mx-auto">

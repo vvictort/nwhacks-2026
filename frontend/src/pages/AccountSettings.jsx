@@ -101,6 +101,7 @@ const AccountSettings = () => {
               placeholder="Enter your display name"
               value={formData.displayName}
               onChange={handleChange}
+              maxLength={100}
               disabled={true} // Managed by Firebase, read-only
             />
 
@@ -111,6 +112,7 @@ const AccountSettings = () => {
               placeholder="your.email@example.com"
               value={formData.email}
               onChange={handleChange}
+              maxLength={255}
               disabled={true} // Managed by Firebase, read-only
             />
 
@@ -121,6 +123,7 @@ const AccountSettings = () => {
               placeholder="+1 (555) 123-4567"
               value={formData.phoneNumber}
               onChange={handleChange}
+              maxLength={20}
               disabled={profileLoading || isSaving}
             />
 

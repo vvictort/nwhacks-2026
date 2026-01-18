@@ -54,6 +54,49 @@ const Register = () => {
     return { strength, label: "Strong", color: "text-green-500" };
   };
 
+  // Real-time password requirements check
+  const getPasswordRequirements = (password) => {
+    return [
+      { label: "At least 8 characters", met: password.length >= 8 },
+      { label: "Contains uppercase letter", met: /[A-Z]/.test(password) },
+      { label: "Contains lowercase letter", met: /[a-z]/.test(password) },
+      { label: "Contains a number", met: /\d/.test(password) },
+      { label: "Contains special character (!@#$%^&*)", met: /[!@#$%^&*(),.?":{}|<>]/.test(password) },
+    ];
+  };
+
+  // Real-time email format check
+  const getEmailStatus = (email) => {
+    if (!email) return { valid: false, message: "" };
+    if (!email.includes("@")) return { valid: false, message: "Missing @ symbol" };
+    if (!email.includes(".")) return { valid: false, message: "Missing domain (e.g., .com)" };
+    if (validateEmail(email)) return { valid: true, message: "Valid email format ✓" };
+    return { valid: false, message: "Invalid email format" };
+  };
+
+  // Real-time phone format check
+  const getPhoneStatus = (phone) => {
+    if (!phone) return { valid: false, message: "" };
+    const digitsOnly = phone.replace(/[^\d]/g, '');
+    if (digitsOnly.length < 7) return { valid: false, message: `${7 - digitsOnly.length} more digits needed` };
+    if (digitsOnly.length > 15) return { valid: false, message: "Too many digits" };
+    return { valid: true, message: "Valid phone number ✓" };
+  };
+
+  // Requirement check item component
+  const RequirementItem = ({ met, label }) => (
+    <div className={`flex items-center gap-2 text-xs transition-colors duration-200 ${met ? 'text-green-600' : 'text-neo-bg-500'}`}>
+      <span className={`w-4 h-4 rounded-full flex items-center justify-center text-[10px] ${met ? 'bg-green-100 text-green-600' : 'bg-neo-bg-200 text-neo-bg-400'}`}>
+        {met ? '✓' : '○'}
+      </span>
+      <span>{label}</span>
+    </div>
+  );
+
+  const passwordRequirements = getPasswordRequirements(formData.password);
+  const emailStatus = getEmailStatus(formData.email);
+  const phoneStatus = getPhoneStatus(formData.phoneNumber);
+
   const validateForm = () => {
     const newErrors = {};
 
@@ -271,6 +314,18 @@ const Register = () => {
                   onChange={handleChange}
                   onBlur={() => handleBlur("firstName")}
                 />
+                <div className="flex justify-between items-center mt-1 ml-4 mr-2">
+                  {formData.firstName.length >= 2 ? (
+                    <span className="text-xs text-green-600">✓ Valid</span>
+                  ) : formData.firstName.length > 0 ? (
+                    <span className="text-xs text-neo-bg-500">Min 2 characters</span>
+                  ) : (
+                    <span></span>
+                  )}
+                  <span className={`text-xs ${formData.firstName.length > 45 ? 'text-amber-600' : 'text-neo-bg-400'}`}>
+                    {formData.firstName.length}/50
+                  </span>
+                </div>
                 <AnimatePresence>
                   {touched.firstName && errors.firstName && (
                     <motion.p
@@ -294,6 +349,18 @@ const Register = () => {
                   onChange={handleChange}
                   onBlur={() => handleBlur("lastName")}
                 />
+                <div className="flex justify-between items-center mt-1 ml-4 mr-2">
+                  {formData.lastName.length >= 2 ? (
+                    <span className="text-xs text-green-600">✓ Valid</span>
+                  ) : formData.lastName.length > 0 ? (
+                    <span className="text-xs text-neo-bg-500">Min 2 characters</span>
+                  ) : (
+                    <span></span>
+                  )}
+                  <span className={`text-xs ${formData.lastName.length > 45 ? 'text-amber-600' : 'text-neo-bg-400'}`}>
+                    {formData.lastName.length}/50
+                  </span>
+                </div>
                 <AnimatePresence>
                   {touched.lastName && errors.lastName && (
                     <motion.p
@@ -319,6 +386,14 @@ const Register = () => {
                 onChange={handleChange}
                 onBlur={() => handleBlur("email")}
               />
+              {formData.email && (
+                <motion.p
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  className={`text-xs mt-1 ml-4 ${emailStatus.valid ? 'text-green-600' : 'text-neo-bg-500'}`}>
+                  {emailStatus.message}
+                </motion.p>
+              )}
               <AnimatePresence>
                 {touched.email && errors.email && (
                   <motion.p
@@ -366,7 +441,17 @@ const Register = () => {
                   className="w-full px-5 py-3 rounded-2xl bg-neo-bg-100 shadow-neo-inset text-neo-bg-800 font-semibold placeholder:text-neo-bg-400 focus:outline-none focus:shadow-[inset_8px_8px_16px_#ddd9c8,inset_-8px_-8px_16px_#ffffff] transition-all"
                 />
               </div>
-              <p className="text-xs text-neo-bg-500 mt-2 ml-1">We'll use this to contact you about toy pickups 📱</p>
+              <div className="flex items-center justify-between mt-2">
+                <p className="text-xs text-neo-bg-500 ml-1">We'll use this to contact you about toy pickups 📱</p>
+                {formData.phoneNumber && (
+                  <motion.p
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    className={`text-xs ${phoneStatus.valid ? 'text-green-600' : 'text-neo-bg-500'}`}>
+                    {phoneStatus.message}
+                  </motion.p>
+                )}
+              </div>
               <AnimatePresence>
                 {touched.phoneNumber && errors.phoneNumber && (
                   <motion.p
@@ -411,8 +496,8 @@ const Register = () => {
                 </button>
               </div>
               {formData.password && (
-                <div className="mt-2 ml-4">
-                  <div className="flex items-center gap-2 mb-1">
+                <div className="mt-3 ml-4">
+                  <div className="flex items-center gap-2 mb-2">
                     <div className="flex-1 h-1.5 bg-neo-bg-200 rounded-full overflow-hidden">
                       <motion.div
                         initial={{ width: 0 }}
@@ -429,7 +514,12 @@ const Register = () => {
                     </div>
                     <span className={`text-xs font-medium ${passwordStrength.color}`}>{passwordStrength.label}</span>
                   </div>
-                  <p className="text-xs text-neo-bg-500">Use 8+ characters with mix of letters, numbers & symbols</p>
+                  <div className="grid grid-cols-1 gap-1.5 p-3 bg-neo-bg-100 rounded-xl">
+                    <p className="text-xs font-semibold text-neo-bg-600 mb-1">Password Requirements:</p>
+                    {passwordRequirements.map((req, index) => (
+                      <RequirementItem key={index} met={req.met} label={req.label} />
+                    ))}
+                  </div>
                 </div>
               )}
               <AnimatePresence>
@@ -475,6 +565,17 @@ const Register = () => {
                   )}
                 </button>
               </div>
+              {formData.confirmPassword && (
+                <motion.p
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  className={`text-xs mt-2 ml-4 flex items-center gap-1 ${formData.password === formData.confirmPassword ? 'text-green-600' : 'text-amber-600'}`}>
+                  <span className={`w-4 h-4 rounded-full flex items-center justify-center text-[10px] ${formData.password === formData.confirmPassword ? 'bg-green-100' : 'bg-amber-100'}`}>
+                    {formData.password === formData.confirmPassword ? '✓' : '!'}
+                  </span>
+                  {formData.password === formData.confirmPassword ? 'Passwords match ✓' : 'Passwords do not match'}
+                </motion.p>
+              )}
               <AnimatePresence>
                 {touched.confirmPassword && errors.confirmPassword && (
                   <motion.p
