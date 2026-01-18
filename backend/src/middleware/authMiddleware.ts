@@ -1,5 +1,5 @@
 import type { NextFunction, Response } from 'express';
-import { auth } from '../firebase.js'
+import { auth } from '../config/firebase.js'
 import type { AuthRequest } from '../types/auth-request';
 
 /**
@@ -15,8 +15,9 @@ export const authenticateFirebaseToken = async (req: AuthRequest, res: Response,
     const idToken = authHeader.slice('Bearer '.length).trim();
 
     try {
-        req.user = await auth.verifyIdToken(idToken);
-        console.log('Authenticated user:', req.user.uid);
+        const user = await auth.verifyIdToken(idToken);
+        req.user = user;
+        console.log('Authenticated user:', user.uid);
         return next();
     } catch (error) {
         console.error('Token verification failed:', error);
