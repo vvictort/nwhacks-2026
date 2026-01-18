@@ -54,7 +54,7 @@ const Donate = () => {
     { value: "All ages", label: "All ages", emoji: "👨" },
   ];
 
-  const acceptedFormats = ".jpg,.jpeg,.png,.webp,.heicg";
+  const acceptedFormats = ".jpeg";
 
   const handleDetectCategories = async () => {
     if (!images.length || !formData.description.trim()) {
