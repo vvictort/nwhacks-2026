@@ -1,8 +1,12 @@
-import React from "react";
+import React, { useContext } from "react";
 // eslint-disable-next-line no-unused-vars
 import { motion } from "framer-motion";
+import { useNavigate } from "react-router-dom";
+import { AuthContext } from "../../context/AuthContext";
 
 const ToyCard = ({ toy }) => {
+    const { user } = useContext(AuthContext);
+    const navigate = useNavigate();
     const categoryThemes = {
         building_blocks: {
             emoji: "🧱",
@@ -174,8 +178,9 @@ const ToyCard = ({ toy }) => {
 
                         {/* Action Button */}
                         <button
+                            onClick={() => user ? null : navigate('/login')}
                             className={`w-full py-3 rounded-xl bg-gradient-to-r ${theme.gradient} text-white font-bold text-sm shadow-md hover:shadow-lg hover:scale-[1.02] active:scale-[0.98] transition-all duration-300 flex items-center justify-center gap-2`}>
-                            <span>View Details</span>
+                            <span>{user ? 'View Details' : 'Request'}</span>
                             <span className="group-hover:translate-x-1 transition-transform duration-300">→</span>
                         </button>
                     </div>
