@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import NeuCard from "../components/atoms/NeuCard";
 import NeuButton from "../components/atoms/NeuButton";
 import NeuInput from "../components/atoms/NeuInput";
+import NeuSelect from "../components/atoms/NeuSelect";
 // eslint-disable-next-line no-unused-vars
 import { motion, AnimatePresence } from "framer-motion";
 import confetti from "canvas-confetti";
@@ -45,7 +46,13 @@ const Donate = () => {
     { value: "fair", label: "Fair", emoji: "👌" },
   ];
 
-  const ageRanges = ["0-2 years", "3-5 years", "6-12 years", "All ages"];
+  const ageRanges = [
+    { value: "", label: "Select age range", emoji: "👶" },
+    { value: "0-2 years", label: "0-2 years", emoji: "🍼" },
+    { value: "3-5 years", label: "3-5 years", emoji: "👶" },
+    { value: "6-12 years", label: "6-12 years", emoji: "🧒" },
+    { value: "All ages", label: "All ages", emoji: "👨" },
+  ];
 
   const acceptedFormats = ".jpg,.jpeg,.png,.webp,.heicg";
 
@@ -352,11 +359,10 @@ const Donate = () => {
                     setFormData((prev) => ({ ...prev, category: cat }));
                     setErrors((prev) => ({ ...prev, category: null }));
                   }}
-                  className={`p-3 rounded-xl text-sm font-medium transition-all duration-200 ${
-                    formData.category === cat
+                  className={`p-3 rounded-xl text-sm font-medium transition-all duration-200 ${formData.category === cat
                       ? "bg-neo-primary-500 text-white shadow-lg"
                       : "bg-neo-bg-100 text-neo-bg-700 shadow-neo-inset hover:bg-neo-bg-200"
-                  }`}>
+                    }`}>
                   {cat}
                 </button>
               ))}
@@ -376,11 +382,10 @@ const Donate = () => {
                     setFormData((prev) => ({ ...prev, condition: cond.value }));
                     setErrors((prev) => ({ ...prev, condition: null }));
                   }}
-                  className={`flex-1 p-4 rounded-xl text-center transition-all duration-200 ${
-                    formData.condition === cond.value
+                  className={`flex-1 p-4 rounded-xl text-center transition-all duration-200 ${formData.condition === cond.value
                       ? "bg-neo-primary-500 text-white shadow-lg"
                       : "bg-neo-bg-100 text-neo-bg-700 shadow-neo-inset hover:bg-neo-bg-200"
-                  }`}>
+                    }`}>
                   <span className="text-2xl block mb-1">{cond.emoji}</span>
                   <span className="text-sm font-medium">{cond.label}</span>
                 </button>
@@ -391,19 +396,20 @@ const Donate = () => {
 
           {/* Age Range */}
           <div>
-            <label className="ml-4 text-sm font-semibold text-neo-bg-600 block mb-2">Suitable Age Range</label>
-            <select
-              name="ageRange"
+            <NeuSelect
               value={formData.ageRange}
-              onChange={handleInputChange}
-              className="w-full bg-neo-bg-100 rounded-xl shadow-neo-inset px-6 py-4 text-neo-bg-800 focus:outline-none focus:ring-2 focus:ring-neo-primary-300/50 transition-all duration-200">
-              <option value="">Select age range</option>
-              {ageRanges.map((age) => (
-                <option key={age} value={age}>
-                  {age}
-                </option>
-              ))}
-            </select>
+              onChange={(value) => {
+                setFormData((prev) => ({ ...prev, ageRange: value }));
+                if (errors.ageRange) {
+                  setErrors((prev) => ({ ...prev, ageRange: null }));
+                }
+                setShowDetectButton(true);
+              }}
+              options={ageRanges}
+              label="Suitable Age Range"
+              icon="👶"
+            />
+            {errors.ageRange && <p className="text-red-500 text-sm mt-2 ml-4">{errors.ageRange}</p>}
           </div>
 
           {/* Submit */}
