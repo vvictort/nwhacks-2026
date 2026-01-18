@@ -29,7 +29,7 @@ const Dashboard = () => {
   ];
 
   return (
-    <div className="flex flex-col gap-12 pb-12">
+    <div className="flex flex-col gap-20 pb-12">
       {/* Welcome Header */}
       <section className="flex flex-col md:flex-row items-center gap-8">
         <motion.div
@@ -121,7 +121,7 @@ const Dashboard = () => {
                 <p className="text-neo-bg-600 mb-4 text-sm">
                   Find wonderful toys for your children. All items are free and verified.
                 </p>
-                <Link to="/#featured-toys">
+                <Link to="/browse">
                   <NeuButton variant="accent" className="text-sm px-6 py-2">
                     Browse Now
                   </NeuButton>
