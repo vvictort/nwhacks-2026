@@ -60,6 +60,27 @@ export default {
         "neo-lg": "14px 14px 28px #ddd9c8, -14px -14px 28px #ffffff",
         "neo-inset": "inset 6px 6px 12px #ddd9c8, inset -6px -6px 12px #ffffff",
       },
+
+      // Custom animations for toy cards
+      animation: {
+        'bounce-slow': 'bounce-slow 3s ease-in-out infinite',
+        'bounce-slower': 'bounce-slower 4s ease-in-out infinite',
+        'pulse-subtle': 'pulse-subtle 3s ease-in-out infinite',
+      },
+      keyframes: {
+        'bounce-slow': {
+          '0%, 100%': { transform: 'translateY(0) rotate(0deg)' },
+          '50%': { transform: 'translateY(-5px) rotate(5deg)' },
+        },
+        'bounce-slower': {
+          '0%, 100%': { transform: 'translateY(0) rotate(0deg)' },
+          '50%': { transform: 'translateY(-3px) rotate(-5deg)' },
+        },
+        'pulse-subtle': {
+          '0%, 100%': { transform: 'scale(1)' },
+          '50%': { transform: 'scale(1.05)' },
+        },
+      },
     },
   },
   plugins: [],
