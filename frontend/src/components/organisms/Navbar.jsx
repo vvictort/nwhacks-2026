@@ -35,7 +35,7 @@ const Navbar = () => {
                   cn(
                     "flex items-center gap-2 px-5 py-2.5 rounded-full font-semibold transition-all duration-300 relative overflow-hidden group",
                     isActive
-                      ? "bg-neo-primary-500 text-white shadow-lg"
+                      ? "bg-neo-primary-600 text-white shadow-lg"
                       : "text-neo-bg-700 hover:text-neo-primary-600 hover:bg-neo-bg-200",
                   )
                 }>

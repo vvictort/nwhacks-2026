@@ -11,7 +11,7 @@ const NeuButton = ({ children, onClick, variant = "default", className, type = "
     default:
       "bg-neo-bg-100 text-neo-bg-800 shadow-neo hover:shadow-neo-lg hover:-translate-y-0.5 active:shadow-neo-inset",
     primary:
-      "bg-neo-primary-600 text-white shadow-neo hover:bg-neo-primary-500 hover:shadow-neo-lg hover:-translate-y-0.5 active:shadow-neo-inset",
+      "bg-neo-primary-600 text-white shadow-neo hover:bg-neo-primary-700 hover:shadow-neo-lg hover:-translate-y-0.5 active:shadow-neo-inset",
     accent:
       "bg-neo-accent-500 text-white shadow-neo hover:bg-neo-accent-400 hover:shadow-neo-lg hover:-translate-y-0.5 active:shadow-neo-inset",
     ghost: "bg-transparent text-neo-bg-700 hover:bg-neo-bg-100/50 hover:text-neo-primary-600",
