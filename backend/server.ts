@@ -1,8 +1,14 @@
 import express, { Request, Response } from 'express';
 import geminiRouter from './routes/gemini';
-
+import cors from 'cors';
 const app = express();
 const port = 3000;
+
+// Allow your frontend origin specifically (safer than '*')
+app.use(cors({
+  origin: 'http://localhost:5173',
+  optionsSuccessStatus: 200  // For legacy browsers
+}));
 
 app.use('/gemini', geminiRouter);
 
