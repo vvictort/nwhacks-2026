@@ -1,5 +1,8 @@
 import admin from 'firebase-admin';
 import { Auth } from 'firebase-admin/auth';
+import { config } from 'dotenv';
+
+config();
 
 admin.initializeApp({
     credential: admin.credential.cert({
