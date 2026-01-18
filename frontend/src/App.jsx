@@ -10,6 +10,7 @@ import Register from "./pages/Register";
 import Dashboard from "./pages/Dashboard";
 import Donate from "./pages/Donate";
 import ForgotPassword from "./pages/ForgotPassword";
+import AccountSettings from "./pages/AccountSettings";
 
 function App() {
   return (
@@ -37,6 +38,14 @@ function App() {
                 <Donate />
               </ProtectedRoute>
             } />
+            <Route
+              path="/account-settings"
+              element={
+                <ProtectedRoute>
+                  <AccountSettings />
+                </ProtectedRoute>
+              }
+            />
             <Route path="/forgot-password" element={<ForgotPassword />} />
           </Routes>
         </MainLayout>
