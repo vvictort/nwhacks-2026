@@ -67,37 +67,47 @@ export const mockSignIn = async (email) => {
 
 // Listen for auth state changes
 export const onAuthChange = (callback) => {
-    // Check for mock user first
-    const mockUserData = localStorage.getItem('mockUser');
-    if (mockUserData) {
-        try {
-            const mockUser = JSON.parse(mockUserData);
-            callback(mockUser);
-        } catch (e) {
-            localStorage.removeItem('mockUser');
+    // Helper to check and return mock user
+    const getMockUser = () => {
+        const mockUserData = localStorage.getItem('mockUser');
+        if (mockUserData) {
+            try {
+                return JSON.parse(mockUserData);
+            } catch (e) {
+                localStorage.removeItem('mockUser');
+                return null;
+            }
         }
+        return null;
+    };
+
+    // Check for mock user first and call callback
+    const mockUser = getMockUser();
+    if (mockUser) {
+        // Use setTimeout to ensure this runs after the listener is set up
+        // and to give consistent async behavior
+        setTimeout(() => callback(mockUser), 0);
     }
 
-    return onAuthStateChanged(auth, async (user) => {
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
         if (user) {
+            // Real Firebase user takes priority
             const token = await user.getIdToken();
             localStorage.setItem('authToken', token);
+            // Clear any mock user if real user exists
+            localStorage.removeItem('mockUser');
             callback(user);
         } else {
-            // Check for mock user again
-            const mockUserData = localStorage.getItem('mockUser');
-            if (mockUserData) {
-                try {
-                    const mockUser = JSON.parse(mockUserData);
-                    callback(mockUser);
-                } catch (e) {
-                    localStorage.removeItem('mockUser');
-                    callback(null);
-                }
+            // No Firebase user - check for mock user
+            const mockUser = getMockUser();
+            if (mockUser) {
+                callback(mockUser);
             } else {
                 localStorage.removeItem('authToken');
                 callback(null);
             }
         }
     });
+
+    return unsubscribe;
 };

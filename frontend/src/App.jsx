@@ -12,6 +12,7 @@ import Donate from "./pages/Donate";
 import ForgotPassword from "./pages/ForgotPassword";
 import AccountSettings from "./pages/AccountSettings";
 import Browse from "./pages/Browse";
+import MyDonations from "./pages/MyDonations";
 
 function App() {
   return (
@@ -35,11 +36,14 @@ function App() {
                 </ProtectedRoute>
               }
             />
-            <Route path="/donate" element={
-              <ProtectedRoute>
-                <Donate />
-              </ProtectedRoute>
-            } />
+            <Route
+              path="/donate"
+              element={
+                <ProtectedRoute>
+                  <Donate />
+                </ProtectedRoute>
+              }
+            />
             <Route
               path="/account-settings"
               element={
@@ -49,6 +53,14 @@ function App() {
               }
             />
             <Route path="/forgot-password" element={<ForgotPassword />} />
+            <Route
+              path="/my-donations"
+              element={
+                <ProtectedRoute>
+                  <MyDonations />
+                </ProtectedRoute>
+              }
+            />
           </Routes>
         </MainLayout>
       </AuthProvider>

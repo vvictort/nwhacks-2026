@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useCallback, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import NeuCard from "../components/atoms/NeuCard";
 import NeuButton from "../components/atoms/NeuButton";
@@ -8,11 +8,49 @@ import NeuSelect from "../components/atoms/NeuSelect";
 import { motion, AnimatePresence } from "framer-motion";
 import confetti from "canvas-confetti";
 import { apiClient } from "../utils/apiClient";
+import { sanitizeText } from "../utils/sanitize";
+import { useAuth } from "../hooks/useAuth";
+
+// Compress image to reduce file size (target ~1MB max)
+const compressImage = (file, maxWidth = 1200, quality = 0.7) => {
+  return new Promise((resolve) => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        let width = img.width;
+        let height = img.height;
+
+        // Scale down if larger than maxWidth
+        if (width > maxWidth) {
+          height = (height * maxWidth) / width;
+          width = maxWidth;
+        }
+
+        canvas.width = width;
+        canvas.height = height;
+
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, width, height);
+
+        // Convert to base64 with compression
+        const compressedBase64 = canvas.toDataURL('image/jpeg', quality);
+        resolve(compressedBase64);
+      };
+      img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+  });
+};
 
 const Donate = () => {
   const navigate = useNavigate();
+  const { refreshUserProfile } = useAuth();
   const fileInputRef = useRef(null);
   const cameraInputRef = useRef(null);
+  const videoRef = useRef(null);
+  const canvasRef = useRef(null);
 
   const [formData, setFormData] = useState({
     toyName: "",
@@ -28,6 +66,33 @@ const Donate = () => {
   // eslint-disable-next-line no-unused-vars
   const [showDetectButton, setShowDetectButton] = useState(false);
   const [isDetecting, setIsDetecting] = useState(false);
+  const [showCamera, setShowCamera] = useState(false);
+  const [cameraStream, setCameraStream] = useState(null);
+
+  // Cleanup camera stream on unmount or when navigating away
+  useEffect(() => {
+    return () => {
+      if (cameraStream) {
+        cameraStream.getTracks().forEach(track => track.stop());
+      }
+    };
+  }, [cameraStream]);
+
+  // Also stop camera when page visibility changes (user switches tabs)
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.hidden && cameraStream) {
+        cameraStream.getTracks().forEach(track => track.stop());
+        setCameraStream(null);
+        setShowCamera(false);
+      }
+    };
+
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    return () => {
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+    };
+  }, [cameraStream]);
 
 
   const categories = [
@@ -70,15 +135,9 @@ const Donate = () => {
     setErrors({});
 
     try {
-      // Convert first image to base64
+      // Compress and convert first image to base64 (max 1200px width, 70% quality)
       const firstImage = images[0].file;
-      const reader = new FileReader();
-      const base64Promise = new Promise((resolve) => {
-        reader.onload = (e) => resolve(e.target.result);
-        reader.readAsDataURL(firstImage);
-      });
-
-      const image_base64 = await base64Promise;
+      const image_base64 = await compressImage(firstImage, 1200, 0.7);
 
       // Call Gemini API
       const response = await fetch('http://localhost:3000/gemini/classify', {
@@ -153,12 +212,97 @@ const Donate = () => {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    // Sanitize text inputs (toyName, description)
+    const sanitizedValue = ['toyName', 'description'].includes(name) ? sanitizeText(value) : value;
+    setFormData((prev) => ({ ...prev, [name]: sanitizedValue }));
     if (errors[name]) {
       setErrors((prev) => ({ ...prev, [name]: null }));
     }
     setShowDetectButton(true);
   };
+
+  // Check if device is mobile
+  const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+
+  // Open camera - different behavior for mobile vs desktop
+  const openCamera = useCallback(async () => {
+    if (images.length >= 5) {
+      setErrors((prev) => ({ ...prev, images: "Maximum 5 images allowed" }));
+      return;
+    }
+
+    // On mobile, use the native camera input
+    if (isMobile) {
+      cameraInputRef.current?.click();
+      return;
+    }
+
+    // On desktop, use WebRTC to access the camera
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: "environment", width: { ideal: 1280 }, height: { ideal: 720 } }
+      });
+      setCameraStream(stream);
+      setShowCamera(true);
+
+      // Wait for the video element to be available
+      setTimeout(() => {
+        if (videoRef.current) {
+          videoRef.current.srcObject = stream;
+          videoRef.current.play();
+        }
+      }, 100);
+    } catch (error) {
+      console.error("Camera access error:", error);
+      // Fall back to file input if camera access fails
+      if (error.name === "NotAllowedError") {
+        setErrors((prev) => ({ ...prev, images: "Camera access denied. Please allow camera permissions or use 'Choose Files' instead." }));
+      } else if (error.name === "NotFoundError") {
+        setErrors((prev) => ({ ...prev, images: "No camera found. Please use 'Choose Files' instead." }));
+      } else {
+        // Try falling back to file input
+        cameraInputRef.current?.click();
+      }
+    }
+  }, [images.length, isMobile]);
+
+  // Capture photo from webcam
+  const capturePhoto = useCallback(() => {
+    if (!videoRef.current || !canvasRef.current) return;
+
+    const video = videoRef.current;
+    const canvas = canvasRef.current;
+
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+
+    const ctx = canvas.getContext("2d");
+    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+    canvas.toBlob((blob) => {
+      if (blob) {
+        const file = new File([blob], `camera-photo-${Date.now()}.jpg`, { type: "image/jpeg" });
+        const newImage = {
+          file,
+          preview: URL.createObjectURL(blob),
+          id: Date.now() + Math.random(),
+        };
+        setImages((prev) => [...prev, newImage]);
+        setShowDetectButton(true);
+      }
+    }, "image/jpeg", 0.9);
+
+    closeCamera();
+  }, []);
+
+  // Close camera and stop stream
+  const closeCamera = useCallback(() => {
+    if (cameraStream) {
+      cameraStream.getTracks().forEach(track => track.stop());
+      setCameraStream(null);
+    }
+    setShowCamera(false);
+  }, [cameraStream]);
 
   const handleImageUpload = (e) => {
     const files = Array.from(e.target.files);
@@ -209,14 +353,8 @@ const Donate = () => {
     setIsSubmitting(true);
 
     try {
-      // Convert images to base64
-      const imagePromises = images.map((img) => {
-        return new Promise((resolve) => {
-          const reader = new FileReader();
-          reader.onload = (e) => resolve(e.target.result);
-          reader.readAsDataURL(img.file);
-        });
-      });
+      // Compress and convert images to base64 (max 1200px width, 80% quality)
+      const imagePromises = images.map((img) => compressImage(img.file, 1200, 0.8));
 
       const base64Images = await Promise.all(imagePromises);
 
@@ -258,6 +396,9 @@ const Donate = () => {
         origin: { y: 0.6 },
         colors: ["#8c97c9", "#bb88a7", "#f5f2e8", "#ffd700"],
       });
+
+      // Refresh user profile so Dashboard shows the new donation
+      await refreshUserProfile();
 
       // Small delay to let users enjoy the confetti
       await new Promise((resolve) => setTimeout(resolve, 1500));
@@ -307,6 +448,18 @@ const Donate = () => {
               value={formData.toyName}
               onChange={handleInputChange}
             />
+            <div className="flex justify-between items-center mt-1 mx-4">
+              {formData.toyName.length >= 3 ? (
+                <span className="text-xs text-green-600">✓ Valid name</span>
+              ) : formData.toyName.length > 0 ? (
+                <span className="text-xs text-neo-bg-500">Min 3 characters</span>
+              ) : (
+                <span></span>
+              )}
+              <span className={`text-xs ${formData.toyName.length > 90 ? 'text-amber-600' : 'text-neo-bg-400'}`}>
+                {formData.toyName.length}/100
+              </span>
+            </div>
             {errors.toyName && <p className="text-red-500 text-sm mt-1 ml-4">{errors.toyName}</p>}
           </div>
 
@@ -322,6 +475,18 @@ const Donate = () => {
               rows={4}
               className="w-full bg-neo-bg-100 rounded-xl shadow-neo-inset px-6 py-4 text-neo-bg-800 placeholder:text-neo-bg-400 focus:outline-none focus:ring-2 focus:ring-neo-primary-300/50 transition-all duration-200 resize-none"
             />
+            <div className="flex justify-between items-center mt-1 mx-4">
+              {formData.description.length >= 20 ? (
+                <span className="text-xs text-green-600">✓ Good description</span>
+              ) : formData.description.length > 0 ? (
+                <span className="text-xs text-neo-bg-500">Add more detail ({20 - formData.description.length} more chars)</span>
+              ) : (
+                <span className="text-xs text-neo-bg-400">Min 20 characters recommended</span>
+              )}
+              <span className={`text-xs ${formData.description.length > 900 ? 'text-amber-600 font-medium' : 'text-neo-bg-400'}`}>
+                {formData.description.length}/1000
+              </span>
+            </div>
             {errors.description && <p className="text-red-500 text-sm mt-1 ml-4">{errors.description}</p>}
           </div>
 
@@ -371,6 +536,8 @@ const Donate = () => {
                 onChange={handleImageUpload}
                 className="hidden"
               />
+              {/* Hidden canvas for capturing photos */}
+              <canvas ref={canvasRef} className="hidden" />
 
               <NeuButton
                 type="button"
@@ -385,7 +552,7 @@ const Donate = () => {
                 type="button"
                 variant="default"
                 className="flex-1"
-                onClick={() => cameraInputRef.current?.click()}
+                onClick={openCamera}
                 disabled={images.length >= 5}>
                 📷 Take Photo
               </NeuButton>
@@ -532,6 +699,67 @@ const Donate = () => {
           </div>
         </NeuCard>
       </form>
+
+      {/* Camera Modal for Desktop */}
+      <AnimatePresence>
+        {showCamera && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4"
+            onClick={closeCamera}
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              className="bg-neo-bg-100 rounded-3xl p-6 max-w-2xl w-full shadow-2xl"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="text-xl font-bold text-neo-primary-800">📷 Take a Photo</h3>
+                <button
+                  type="button"
+                  onClick={closeCamera}
+                  className="w-8 h-8 rounded-full bg-neo-bg-200 hover:bg-neo-bg-300 flex items-center justify-center text-neo-bg-600 transition-colors"
+                >
+                  ✕
+                </button>
+              </div>
+
+              <div className="relative aspect-video bg-black rounded-2xl overflow-hidden mb-4">
+                <video
+                  ref={videoRef}
+                  autoPlay
+                  playsInline
+                  muted
+                  className="w-full h-full object-cover"
+                />
+              </div>
+
+              <div className="flex gap-4">
+                <NeuButton
+                  type="button"
+                  variant="default"
+                  className="flex-1"
+                  onClick={closeCamera}
+                >
+                  Cancel
+                </NeuButton>
+                <NeuButton
+                  type="button"
+                  variant="primary"
+                  className="flex-1"
+                  onClick={capturePhoto}
+                >
+                  📸 Capture
+                </NeuButton>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };

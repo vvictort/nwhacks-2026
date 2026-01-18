@@ -1,4 +1,4 @@
-import {querySnowflake} from "../config/snowflake";
+import { querySnowflake } from "../config/snowflake";
 
 export async function ensureUserRow(uid: string, email: string | null): Promise<void> {
     await querySnowflake(
@@ -63,37 +63,37 @@ export function parseAndValidateJpegBase64(input: unknown): { ok: true; b64: str
     error: string
 } {
     const raw = pickString(input);
-    if (!raw) return {ok: false, error: "Image must be a non-empty base64 string"};
+    if (!raw) return { ok: false, error: "Image must be a non-empty base64 string" };
 
     // Enforce jpeg data URL if they send data URLs (optional but requested)
     const hasDataUrl = /^data:/i.test(raw);
     if (hasDataUrl && !/^data:image\/jpeg;base64,/i.test(raw)) {
-        return {ok: false, error: "Only data:image/jpeg;base64 images are allowed"};
+        return { ok: false, error: "Only data:image/jpeg;base64 images are allowed" };
     }
 
     const b64 = stripDataUrlPrefix(raw);
 
     // quick size gate before decoding (prevents huge decode work)
     if (b64.length > MAX_IMAGE_BASE64_LEN) {
-        return {ok: false, error: `Image too large (max ${MAX_IMAGE_BYTES} bytes)`};
+        return { ok: false, error: `Image too large (max ${MAX_IMAGE_BYTES} bytes)` };
     }
 
     if (!isBase64Like(b64)) {
-        return {ok: false, error: "Invalid base64 encoding"};
+        return { ok: false, error: "Invalid base64 encoding" };
     }
 
     let buf: Buffer;
     try {
         buf = Buffer.from(b64, "base64");
     } catch {
-        return {ok: false, error: "Invalid base64 encoding"};
+        return { ok: false, error: "Invalid base64 encoding" };
     }
 
-    if (buf.length === 0) return {ok: false, error: "Invalid base64 encoding"};
-    if (buf.length > MAX_IMAGE_BYTES) return {ok: false, error: `Image too large (max ${MAX_IMAGE_BYTES} bytes)`};
-    if (!isJpegBytes(buf)) return {ok: false, error: "Image is not a valid JPEG"};
+    if (buf.length === 0) return { ok: false, error: "Invalid base64 encoding" };
+    if (buf.length > MAX_IMAGE_BYTES) return { ok: false, error: `Image too large (max ${MAX_IMAGE_BYTES} bytes)` };
+    if (!isJpegBytes(buf)) return { ok: false, error: "Image is not a valid JPEG" };
 
-    return {ok: true, b64, bytes: buf.length};
+    return { ok: true, b64, bytes: buf.length };
 }
 
 export function pickString(input: unknown): string | null {
@@ -108,9 +108,9 @@ export function validateLength(
     fieldName: string
 ): { valid: boolean; error?: string } {
     if (value && value.length > maxLength) {
-        return {valid: false, error: `${fieldName} exceeds maximum length of ${maxLength} characters`};
+        return { valid: false, error: `${fieldName} exceeds maximum length of ${maxLength} characters` };
     }
-    return {valid: true};
+    return { valid: true };
 }
 
 export function normalizeStatus(input: unknown): string | null {

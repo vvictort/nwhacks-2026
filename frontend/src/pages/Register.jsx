@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import NeuCard from "../components/atoms/NeuCard";
 import NeuInput from "../components/atoms/NeuInput";
 import NeuButton from "../components/atoms/NeuButton";
+import NeuSelect from "../components/atoms/NeuSelect";
 
 const Register = () => {
   const navigate = useNavigate();
@@ -12,6 +13,8 @@ const Register = () => {
     firstName: "",
     lastName: "",
     email: "",
+    countryCode: "+1",
+    phoneNumber: "",
     password: "",
     confirmPassword: "",
   });
@@ -20,9 +23,20 @@ const Register = () => {
   const [success, setSuccess] = useState(false);
   const [touched, setTouched] = useState({});
   const [termsAccepted, setTermsAccepted] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const validateEmail = (email) => {
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  };
+
+  const validatePhoneNumber = (phone) => {
+    // Validates local phone numbers (without country code):
+    // 234-567-8900, (234) 567-8900, 234 567 8900, 2345678900, etc.
+    const digitsOnly = phone.replace(/[^\d]/g, '');
+    // Must have exactly 10 digits for North American numbers
+    // or 7-15 digits for international
+    return digitsOnly.length >= 7 && digitsOnly.length <= 15;
   };
 
   const getPasswordStrength = (password) => {
@@ -40,6 +54,49 @@ const Register = () => {
     return { strength, label: "Strong", color: "text-green-500" };
   };
 
+  // Real-time password requirements check
+  const getPasswordRequirements = (password) => {
+    return [
+      { label: "At least 8 characters", met: password.length >= 8 },
+      { label: "Contains uppercase letter", met: /[A-Z]/.test(password) },
+      { label: "Contains lowercase letter", met: /[a-z]/.test(password) },
+      { label: "Contains a number", met: /\d/.test(password) },
+      { label: "Contains special character (!@#$%^&*)", met: /[!@#$%^&*(),.?":{}|<>]/.test(password) },
+    ];
+  };
+
+  // Real-time email format check
+  const getEmailStatus = (email) => {
+    if (!email) return { valid: false, message: "" };
+    if (!email.includes("@")) return { valid: false, message: "Missing @ symbol" };
+    if (!email.includes(".")) return { valid: false, message: "Missing domain (e.g., .com)" };
+    if (validateEmail(email)) return { valid: true, message: "Valid email format ✓" };
+    return { valid: false, message: "Invalid email format" };
+  };
+
+  // Real-time phone format check
+  const getPhoneStatus = (phone) => {
+    if (!phone) return { valid: false, message: "" };
+    const digitsOnly = phone.replace(/[^\d]/g, '');
+    if (digitsOnly.length < 7) return { valid: false, message: `${7 - digitsOnly.length} more digits needed` };
+    if (digitsOnly.length > 15) return { valid: false, message: "Too many digits" };
+    return { valid: true, message: "Valid phone number ✓" };
+  };
+
+  // Requirement check item component
+  const RequirementItem = ({ met, label }) => (
+    <div className={`flex items-center gap-2 text-xs transition-colors duration-200 ${met ? 'text-green-600' : 'text-neo-bg-500'}`}>
+      <span className={`w-4 h-4 rounded-full flex items-center justify-center text-[10px] ${met ? 'bg-green-100 text-green-600' : 'bg-neo-bg-200 text-neo-bg-400'}`}>
+        {met ? '✓' : '○'}
+      </span>
+      <span>{label}</span>
+    </div>
+  );
+
+  const passwordRequirements = getPasswordRequirements(formData.password);
+  const emailStatus = getEmailStatus(formData.email);
+  const phoneStatus = getPhoneStatus(formData.phoneNumber);
+
   const validateForm = () => {
     const newErrors = {};
 
@@ -55,6 +112,12 @@ const Register = () => {
       newErrors.email = "Email is required";
     } else if (!validateEmail(formData.email)) {
       newErrors.email = "Please enter a valid email address";
+    }
+
+    if (!formData.phoneNumber.trim()) {
+      newErrors.phoneNumber = "Phone number is required";
+    } else if (!validatePhoneNumber(formData.phoneNumber)) {
+      newErrors.phoneNumber = "Please enter a valid phone number (e.g., 234-567-8900)";
     }
 
     if (!formData.password) {
@@ -100,6 +163,7 @@ const Register = () => {
       firstName: true,
       lastName: true,
       email: true,
+      phoneNumber: true,
       password: true,
       confirmPassword: true,
       terms: true,
@@ -250,6 +314,18 @@ const Register = () => {
                   onChange={handleChange}
                   onBlur={() => handleBlur("firstName")}
                 />
+                <div className="flex justify-between items-center mt-1 ml-4 mr-2">
+                  {formData.firstName.length >= 2 ? (
+                    <span className="text-xs text-green-600">✓ Valid</span>
+                  ) : formData.firstName.length > 0 ? (
+                    <span className="text-xs text-neo-bg-500">Min 2 characters</span>
+                  ) : (
+                    <span></span>
+                  )}
+                  <span className={`text-xs ${formData.firstName.length > 45 ? 'text-amber-600' : 'text-neo-bg-400'}`}>
+                    {formData.firstName.length}/50
+                  </span>
+                </div>
                 <AnimatePresence>
                   {touched.firstName && errors.firstName && (
                     <motion.p
@@ -273,6 +349,18 @@ const Register = () => {
                   onChange={handleChange}
                   onBlur={() => handleBlur("lastName")}
                 />
+                <div className="flex justify-between items-center mt-1 ml-4 mr-2">
+                  {formData.lastName.length >= 2 ? (
+                    <span className="text-xs text-green-600">✓ Valid</span>
+                  ) : formData.lastName.length > 0 ? (
+                    <span className="text-xs text-neo-bg-500">Min 2 characters</span>
+                  ) : (
+                    <span></span>
+                  )}
+                  <span className={`text-xs ${formData.lastName.length > 45 ? 'text-amber-600' : 'text-neo-bg-400'}`}>
+                    {formData.lastName.length}/50
+                  </span>
+                </div>
                 <AnimatePresence>
                   {touched.lastName && errors.lastName && (
                     <motion.p
@@ -298,6 +386,14 @@ const Register = () => {
                 onChange={handleChange}
                 onBlur={() => handleBlur("email")}
               />
+              {formData.email && (
+                <motion.p
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  className={`text-xs mt-1 ml-4 ${emailStatus.valid ? 'text-green-600' : 'text-neo-bg-500'}`}>
+                  {emailStatus.message}
+                </motion.p>
+              )}
               <AnimatePresence>
                 {touched.email && errors.email && (
                   <motion.p
@@ -312,19 +408,96 @@ const Register = () => {
             </div>
 
             <div>
-              <NeuInput
-                label="Password"
-                type="password"
-                name="password"
-                placeholder="••••••••"
-                maxLength={100}
-                value={formData.password}
-                onChange={handleChange}
-                onBlur={() => handleBlur("password")}
-              />
+              <label className="block text-sm font-semibold text-neo-bg-700 mb-2 ml-1">Phone Number</label>
+              <div className="grid grid-cols-[120px_1fr] gap-3 items-stretch">
+                <NeuSelect
+                  value={formData.countryCode}
+                  onChange={(e) => handleChange({ target: { name: 'countryCode', value: e.target.value } })}
+                  options={[
+                    { value: '+1', label: '🇺🇸 +1', emoji: '' },
+                    { value: '+1CA', label: '🇨🇦 +1', emoji: '' },
+                    { value: '+44', label: '🇬🇧 +44', emoji: '' },
+                    { value: '+61', label: '🇦🇺 +61', emoji: '' },
+                    { value: '+91', label: '🇮🇳 +91', emoji: '' },
+                    { value: '+86', label: '🇨🇳 +86', emoji: '' },
+                    { value: '+81', label: '🇯🇵 +81', emoji: '' },
+                    { value: '+82', label: '🇰🇷 +82', emoji: '' },
+                    { value: '+49', label: '🇩🇪 +49', emoji: '' },
+                    { value: '+33', label: '🇫🇷 +33', emoji: '' },
+                    { value: '+52', label: '🇲🇽 +52', emoji: '' },
+                    { value: '+55', label: '🇧🇷 +55', emoji: '' },
+                    { value: '+63', label: '🇵🇭 +63', emoji: '' },
+                    { value: '+84', label: '🇻🇳 +84', emoji: '' },
+                  ]}
+                />
+                <input
+                  type="tel"
+                  name="phoneNumber"
+                  placeholder="234-567-8900"
+                  maxLength={15}
+                  value={formData.phoneNumber}
+                  onChange={handleChange}
+                  onBlur={() => handleBlur("phoneNumber")}
+                  className="w-full px-5 py-3 rounded-2xl bg-neo-bg-100 shadow-neo-inset text-neo-bg-800 font-semibold placeholder:text-neo-bg-400 focus:outline-none focus:shadow-[inset_8px_8px_16px_#ddd9c8,inset_-8px_-8px_16px_#ffffff] transition-all"
+                />
+              </div>
+              <div className="flex items-center justify-between mt-2">
+                <p className="text-xs text-neo-bg-500 ml-1">We'll use this to contact you about toy pickups 📱</p>
+                {formData.phoneNumber && (
+                  <motion.p
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    className={`text-xs ${phoneStatus.valid ? 'text-green-600' : 'text-neo-bg-500'}`}>
+                    {phoneStatus.message}
+                  </motion.p>
+                )}
+              </div>
+              <AnimatePresence>
+                {touched.phoneNumber && errors.phoneNumber && (
+                  <motion.p
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: "auto" }}
+                    exit={{ opacity: 0, height: 0 }}
+                    className="text-red-500 text-xs mt-1 ml-1">
+                    {errors.phoneNumber}
+                  </motion.p>
+                )}
+              </AnimatePresence>
+            </div>
+
+            <div>
+              <div className="relative">
+                <NeuInput
+                  label="Password"
+                  type={showPassword ? "text" : "password"}
+                  name="password"
+                  placeholder="••••••••"
+                  maxLength={100}
+                  value={formData.password}
+                  onChange={handleChange}
+                  onBlur={() => handleBlur("password")}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-4 top-[42px] text-neo-bg-500 hover:text-neo-primary-600 transition-colors"
+                  aria-label={showPassword ? "Hide password" : "Show password"}
+                >
+                  {showPassword ? (
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
+                    </svg>
+                  ) : (
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                    </svg>
+                  )}
+                </button>
+              </div>
               {formData.password && (
-                <div className="mt-2 ml-4">
-                  <div className="flex items-center gap-2 mb-1">
+                <div className="mt-3 ml-4">
+                  <div className="flex items-center gap-2 mb-2">
                     <div className="flex-1 h-1.5 bg-neo-bg-200 rounded-full overflow-hidden">
                       <motion.div
                         initial={{ width: 0 }}
@@ -341,7 +514,12 @@ const Register = () => {
                     </div>
                     <span className={`text-xs font-medium ${passwordStrength.color}`}>{passwordStrength.label}</span>
                   </div>
-                  <p className="text-xs text-neo-bg-500">Use 8+ characters with mix of letters, numbers & symbols</p>
+                  <div className="grid grid-cols-1 gap-1.5 p-3 bg-neo-bg-100 rounded-xl">
+                    <p className="text-xs font-semibold text-neo-bg-600 mb-1">Password Requirements:</p>
+                    {passwordRequirements.map((req, index) => (
+                      <RequirementItem key={index} met={req.met} label={req.label} />
+                    ))}
+                  </div>
                 </div>
               )}
               <AnimatePresence>
@@ -358,16 +536,46 @@ const Register = () => {
             </div>
 
             <div>
-              <NeuInput
-                label="Confirm Password"
-                type="password"
-                name="confirmPassword"
-                placeholder="••••••••"
-                maxLength={100}
-                value={formData.confirmPassword}
-                onChange={handleChange}
-                onBlur={() => handleBlur("confirmPassword")}
-              />
+              <div className="relative">
+                <NeuInput
+                  label="Confirm Password"
+                  type={showConfirmPassword ? "text" : "password"}
+                  name="confirmPassword"
+                  placeholder="••••••••"
+                  maxLength={100}
+                  value={formData.confirmPassword}
+                  onChange={handleChange}
+                  onBlur={() => handleBlur("confirmPassword")}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  className="absolute right-4 top-[42px] text-neo-bg-500 hover:text-neo-primary-600 transition-colors"
+                  aria-label={showConfirmPassword ? "Hide password" : "Show password"}
+                >
+                  {showConfirmPassword ? (
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
+                    </svg>
+                  ) : (
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                    </svg>
+                  )}
+                </button>
+              </div>
+              {formData.confirmPassword && (
+                <motion.p
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  className={`text-xs mt-2 ml-4 flex items-center gap-1 ${formData.password === formData.confirmPassword ? 'text-green-600' : 'text-amber-600'}`}>
+                  <span className={`w-4 h-4 rounded-full flex items-center justify-center text-[10px] ${formData.password === formData.confirmPassword ? 'bg-green-100' : 'bg-amber-100'}`}>
+                    {formData.password === formData.confirmPassword ? '✓' : '!'}
+                  </span>
+                  {formData.password === formData.confirmPassword ? 'Passwords match ✓' : 'Passwords do not match'}
+                </motion.p>
+              )}
               <AnimatePresence>
                 {touched.confirmPassword && errors.confirmPassword && (
                   <motion.p

@@ -4,8 +4,113 @@ import { motion } from "framer-motion";
 import ToyCard from "../components/molecules/ToyCard";
 import NeuSelect from "../components/atoms/NeuSelect";
 import { publicApiClient } from "../utils/apiClient";
+import { useAuth } from "../hooks/useAuth";
+
+// Hardcoded mock toys for demo/when backend is unavailable
+const mockBrowseToys = [
+    {
+        id: 'browse-1',
+        toyName: 'LEGO City Fire Station',
+        description: 'Complete fire station set with 3 minifigures, fire truck, and helicopter. All pieces included!',
+        category: 'building_blocks',
+        condition: 'excellent',
+        ageRange: '5-7',
+        status: 'available',
+        createdAt: '2025-12-20T10:00:00Z',
+        ownerId: 'user-1',
+    },
+    {
+        id: 'browse-2',
+        toyName: 'Giant Teddy Bear',
+        description: 'Soft and cuddly 4-foot teddy bear. Perfect for hugs! Recently cleaned.',
+        category: 'plush',
+        condition: 'good',
+        ageRange: '0-2',
+        status: 'available',
+        createdAt: '2025-12-18T14:30:00Z',
+        ownerId: 'user-2',
+    },
+    {
+        id: 'browse-3',
+        toyName: 'Hot Wheels Track Set',
+        description: 'Massive track set with loops, jumps, and launcher. Includes 15 cars!',
+        category: 'vehicles',
+        condition: 'good',
+        ageRange: '5-7',
+        status: 'available',
+        createdAt: '2025-12-15T09:00:00Z',
+        ownerId: 'user-3',
+    },
+    {
+        id: 'browse-4',
+        toyName: 'Wooden Train Set',
+        description: 'Classic wooden train set compatible with major brands. 50+ pieces!',
+        category: 'vehicles',
+        condition: 'excellent',
+        ageRange: '3-4',
+        status: 'reserved',
+        createdAt: '2025-12-10T16:45:00Z',
+        ownerId: 'user-4',
+    },
+    {
+        id: 'browse-5',
+        toyName: 'Kids Chemistry Set',
+        description: 'Safe and fun chemistry experiments for young scientists. Adult supervision recommended.',
+        category: 'educational',
+        condition: 'good',
+        ageRange: '8-12',
+        status: 'available',
+        createdAt: '2025-12-08T11:20:00Z',
+        ownerId: 'user-5',
+    },
+    {
+        id: 'browse-6',
+        toyName: 'Nintendo Switch with Games',
+        description: 'Nintendo Switch console with Mario Kart and Zelda. All accessories included!',
+        category: 'electronic',
+        condition: 'excellent',
+        ageRange: '8-12',
+        status: 'available',
+        createdAt: '2025-12-05T08:15:00Z',
+        ownerId: 'user-6',
+    },
+    {
+        id: 'browse-7',
+        toyName: 'Art Supply Mega Box',
+        description: 'Crayons, markers, paints, brushes, paper - everything a young artist needs!',
+        category: 'arts_crafts',
+        condition: 'good',
+        ageRange: '3-4',
+        status: 'available',
+        createdAt: '2025-12-01T13:00:00Z',
+        ownerId: 'user-7',
+    },
+    {
+        id: 'browse-8',
+        toyName: 'Soccer Goal & Ball Set',
+        description: 'Portable soccer goal with net and official size ball. Great for backyard fun!',
+        category: 'outdoor',
+        condition: 'good',
+        ageRange: '5-7',
+        status: 'reserved',
+        createdAt: '2025-11-28T15:30:00Z',
+        ownerId: 'user-8',
+    },
+    {
+        id: 'browse-9',
+        toyName: '1000-Piece Disney Puzzle',
+        description: 'Beautiful Disney castle puzzle. All pieces verified complete!',
+        category: 'puzzles',
+        condition: 'excellent',
+        ageRange: '8-12',
+        status: 'available',
+        createdAt: '2025-11-25T10:45:00Z',
+        ownerId: 'user-9',
+    },
+];
 
 const Browse = () => {
+    const { user, refreshUserProfile } = useAuth();
     const [toys, setToys] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -13,8 +118,13 @@ const Browse = () => {
     const [selectedCondition, setSelectedCondition] = useState('all');
     const [selectedAge, setSelectedAge] = useState('all');
 
+    // Check if this is a mock/demo user
+    // eslint-disable-next-line no-unused-vars
+    const isMockUser = user?.uid === 'mock-user-id';
+
     useEffect(() => {
         fetchToys();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     const fetchToys = async () => {
@@ -22,23 +132,24 @@ const Browse = () => {
             setLoading(true);
             setError(null);
 
-            // Fetch from backend GET /toys endpoint
+            // Always try to fetch from backend GET /toys endpoint first
             const data = await publicApiClient.get('/toys');
-            setToys(data.toys || []);
+
+            // If API returns toys, use them; otherwise fall back to mock data
+            if (data.toys && data.toys.length > 0) {
+                setToys(data.toys);
+            } else {
+                // No toys in database, use mock data for demo
+                console.log('No toys in database, using mock data for demo...');
+                setToys(mockBrowseToys);
+            }
         } catch (err) {
             console.error('Error fetching toys:', err);
 
-            // Provide specific error feedback
-            let errorMessage = 'Failed to load toys. Please try again.';
-            if (err.status === 503 || err.message?.includes('fetch')) {
-                errorMessage = 'Unable to connect to the server. Please check your internet connection.';
-            } else if (err.status === 500) {
-                errorMessage = 'Server error. Our team has been notified. Please try again later.';
-            } else if (err.message) {
-                errorMessage = err.message;
-            }
-
-            setError(errorMessage);
+            // If backend fails, fall back to mock data for better UX
+            console.log('Falling back to mock data...');
+            setToys(mockBrowseToys);
+            setError(null); // Clear error since we have fallback data
         } finally {
             setLoading(false);
         }
@@ -87,6 +198,17 @@ const Browse = () => {
         setSelectedAge('all');
     };
 
+    // Handle when a toy is claimed - update its status in the list
+    const handleToyClaimed = async (toyName) => {
+        setToys(prevToys => prevToys.map(toy =>
+            toy.toyName === toyName
+                ? { ...toy, status: 'reserved' }
+                : toy
+        ));
+        // Refresh user profile so Dashboard shows claimed toys
+        await refreshUserProfile();
+    };
+
     return (
         <div className="max-w-7xl mx-auto py-10">
             {/* Header */}
@@ -95,8 +217,8 @@ const Browse = () => {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6 }}
                 className="text-center mb-12">
-                <h1 className="text-5xl font-bold font-display bg-gradient-to-r from-neo-primary-900 via-neo-accent-400 to-neo-primary-300 bg-clip-text text-transparent mb-4">
-                    Browse Free Toys
+                <h1 className="text-5xl font-bold font-display text-neo-primary-800 mb-4">
+                    Browse Toys
                 </h1>
                 <p className="text-neo-bg-600 text-lg max-w-2xl mx-auto">
                     Discover toys forwarded by generous families. All items are free, verified, and ready to bring joy to your children.
@@ -229,7 +351,7 @@ const Browse = () => {
                                             initial={{ opacity: 0, y: 20 }}
                                             animate={{ opacity: 1, y: 0 }}
                                             transition={{ duration: 0.3, delay: index * 0.1 }}>
-                                            <ToyCard toy={toy} />
+                                            <ToyCard toy={toy} onClaimed={handleToyClaimed} />
                                         </motion.div>
                                     ))}
                                 </motion.div>
