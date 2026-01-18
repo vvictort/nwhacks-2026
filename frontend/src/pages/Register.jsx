@@ -124,9 +124,24 @@ const Register = () => {
         navigate("/login");
       }, 2000);
     } catch (error) {
-      setErrors({ submit: "Registration failed. Please try again." });
+      console.error('Registration error:', error);
+
+      // Provide specific error feedback
+      let errorMessage = 'Registration failed. Please try again.';
+      if (error.message?.includes('fetch') || error.message?.includes('network')) {
+        errorMessage = 'Unable to connect. Please check your internet connection.';
+      } else if (error.code === 'auth/email-already-in-use') {
+        errorMessage = 'This email is already registered. Try logging in instead.';
+      } else if (error.code === 'auth/invalid-email') {
+        errorMessage = 'Please enter a valid email address.';
+      } else if (error.code === 'auth/weak-password') {
+        errorMessage = 'Password is too weak. Please choose a stronger password.';
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+
+      setErrors({ submit: errorMessage });
       setIsLoading(false);
-      console.log("Signup Error: " + error);
     }
   };
 

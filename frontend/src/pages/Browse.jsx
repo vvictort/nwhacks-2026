@@ -27,7 +27,18 @@ const Browse = () => {
             setToys(data.toys || []);
         } catch (err) {
             console.error('Error fetching toys:', err);
-            setError(err?.message || 'Failed to load toys. Please try again.');
+
+            // Provide specific error feedback
+            let errorMessage = 'Failed to load toys. Please try again.';
+            if (err.status === 503 || err.message?.includes('fetch')) {
+                errorMessage = 'Unable to connect to the server. Please check your internet connection.';
+            } else if (err.status === 500) {
+                errorMessage = 'Server error. Our team has been notified. Please try again later.';
+            } else if (err.message) {
+                errorMessage = err.message;
+            }
+
+            setError(errorMessage);
         } finally {
             setLoading(false);
         }
@@ -88,7 +99,7 @@ const Browse = () => {
                     Browse Free Toys
                 </h1>
                 <p className="text-neo-bg-600 text-lg max-w-2xl mx-auto">
-                    Discover wonderful toys for your children. All items are free, verified, and ready to bring joy to your family.
+                    Discover toys forwarded by generous families. All items are free, verified, and ready to bring joy to your children.
                 </p>
             </motion.div>
 

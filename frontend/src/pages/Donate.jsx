@@ -7,6 +7,7 @@ import NeuSelect from "../components/atoms/NeuSelect";
 // eslint-disable-next-line no-unused-vars
 import { motion, AnimatePresence } from "framer-motion";
 import confetti from "canvas-confetti";
+import { apiClient } from "../utils/apiClient";
 
 const Donate = () => {
   const navigate = useNavigate();
@@ -24,7 +25,8 @@ const Donate = () => {
   const [images, setImages] = useState([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errors, setErrors] = useState({});
-  const [setShowDetectButton] = useState(false);
+  // eslint-disable-next-line no-unused-vars
+  const [showDetectButton, setShowDetectButton] = useState(false);
   const [isDetecting, setIsDetecting] = useState(false);
 
 
@@ -88,7 +90,10 @@ const Donate = () => {
         })
       });
 
-      if (!response.ok) throw new Error('Classification failed');
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || 'Classification failed');
+      }
 
       const aiResult = await response.json();
       console.log('AI Result:', aiResult);
@@ -131,7 +136,16 @@ const Donate = () => {
 
     } catch (error) {
       console.error('Detection error:', error);
-      setErrors({ detect: 'Failed to detect categories. Please try again.' });
+
+      // Provide specific error feedback for AI detection
+      let errorMessage = 'Failed to detect categories. Please try again.';
+      if (error.message?.includes('fetch') || error.message?.includes('network')) {
+        errorMessage = 'Unable to connect to the AI service. Please check your connection.';
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+
+      setErrors({ detect: errorMessage });
     } finally {
       setIsDetecting(false);
     }
@@ -193,29 +207,91 @@ const Donate = () => {
     if (!validateForm()) return;
 
     setIsSubmitting(true);
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 2000));
-    setIsSubmitting(false);
 
-    // Celebration confetti! 🎉
-    confetti({
-      particleCount: 150,
-      spread: 100,
-      origin: { y: 0.6 },
-      colors: ["#8c97c9", "#bb88a7", "#f5f2e8", "#ffd700"],
-    });
+    try {
+      // Convert images to base64
+      const imagePromises = images.map((img) => {
+        return new Promise((resolve) => {
+          const reader = new FileReader();
+          reader.onload = (e) => resolve(e.target.result);
+          reader.readAsDataURL(img.file);
+        });
+      });
 
-    // Small delay to let users enjoy the confetti
-    await new Promise((resolve) => setTimeout(resolve, 1500));
-    navigate("/dashboard");
+      const base64Images = await Promise.all(imagePromises);
+
+      // Map frontend category names to backend allowed categories
+      const categoryMap = {
+        "Action Figures": "Figures",
+        "Dolls & Stuffed Animals": "Plush",
+        "Building Blocks": "Building",
+        "Puzzles & Games": "Puzzles",
+        "Vehicles": "Vehicles",
+        "Educational Toys": "STEM",
+        "Outdoor Toys": "Active",
+        "Arts & Crafts": "Crafts",
+        "Other": "Pretend",
+      };
+
+      // Map frontend condition to backend allowed conditions
+      const conditionMap = {
+        "like-new": "Like new",
+        "good": "Lightly used",
+        "fair": "Well used",
+      };
+
+      // Send to backend
+      await apiClient.post("/toys", {
+        toyName: formData.toyName,
+        description: formData.description,
+        category: categoryMap[formData.category] || "Pretend",
+        ageRange: formData.ageRange,
+        condition: conditionMap[formData.condition] || "Lightly used",
+        status: "available",
+        images: base64Images,
+      });
+
+      // Celebration confetti! 🎉
+      confetti({
+        particleCount: 150,
+        spread: 100,
+        origin: { y: 0.6 },
+        colors: ["#8c97c9", "#bb88a7", "#f5f2e8", "#ffd700"],
+      });
+
+      // Small delay to let users enjoy the confetti
+      await new Promise((resolve) => setTimeout(resolve, 1500));
+      navigate("/dashboard");
+    } catch (error) {
+      console.error("Failed to forward toy:", error);
+
+      // Provide specific error feedback based on error type
+      let errorMessage = "Failed to forward toy. Please try again.";
+
+      if (error.status === 401) {
+        errorMessage = "You must be logged in to forward a toy. Please sign in and try again.";
+      } else if (error.status === 400) {
+        errorMessage = error.message || "Invalid toy information. Please check your inputs.";
+      } else if (error.status === 409) {
+        errorMessage = "A toy with this name already exists. Please choose a different name.";
+      } else if (error.status === 413) {
+        errorMessage = "Images are too large. Please use smaller images (max 3MB each).";
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+
+      setErrors({ submit: errorMessage });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
     <div className="max-w-3xl mx-auto pb-12">
       <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
-        <h1 className="text-4xl md:text-5xl font-display text-neo-primary-800 mb-4 text-center">Donate a Toy 🎁</h1>
+        <h1 className="text-4xl md:text-5xl font-display text-neo-primary-800 mb-4 text-center">Forward a Toy 🎁</h1>
         <p className="text-center text-neo-bg-600 mb-10 text-lg italic max-w-xl mx-auto">
-          Give your pre-loved toys a second chance to bring joy to another child.
+          Pass on the joy! Give your pre-loved toys a new adventure with another child.
         </p>
       </motion.div>
 
@@ -421,16 +497,36 @@ const Donate = () => {
 
           {/* Submit */}
           <div className="pt-4">
+            {/* Submit Error Message */}
+            <AnimatePresence>
+              {errors.submit && (
+                <motion.div
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  className="mb-4 p-4 bg-red-50 border border-red-200 rounded-xl"
+                >
+                  <div className="flex items-start gap-3">
+                    <span className="text-2xl">😔</span>
+                    <div>
+                      <p className="text-red-700 font-semibold">Oops! Something went wrong</p>
+                      <p className="text-red-600 text-sm mt-1">{errors.submit}</p>
+                    </div>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+
             <NeuButton type="submit" variant="primary" className="w-full py-4 text-lg" disabled={isSubmitting}>
               {isSubmitting ? (
                 <span className="flex items-center justify-center gap-2">
                   <motion.span animate={{ rotate: 360 }} transition={{ duration: 1, repeat: Infinity, ease: "linear" }}>
                     ⏳
                   </motion.span>
-                  Submitting...
+                  Forwarding...
                 </span>
               ) : (
-                "Submit Donation 🎉"
+                "Forward This Toy 🎉"
               )}
             </NeuButton>
           </div>

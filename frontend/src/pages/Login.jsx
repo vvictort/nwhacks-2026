@@ -77,8 +77,21 @@ const Login = () => {
         setErrors({ submit: "Invalid email or password. Try demo@example.com / password" });
       }
     } catch (error) {
-      setErrors({ submit: "An error occurred. Please try again." });
-      console.log(error);
+      console.error('Login error:', error);
+
+      // Provide specific error feedback
+      let errorMessage = 'An error occurred. Please try again.';
+      if (error.message?.includes('fetch') || error.message?.includes('network')) {
+        errorMessage = 'Unable to connect. Please check your internet connection.';
+      } else if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password') {
+        errorMessage = 'Invalid email or password.';
+      } else if (error.code === 'auth/too-many-requests') {
+        errorMessage = 'Too many failed attempts. Please try again later.';
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+
+      setErrors({ submit: errorMessage });
     } finally {
       setIsLoading(false);
     }
@@ -87,11 +100,25 @@ const Login = () => {
   const handleGoogleSignIn = async () => {
     try {
       setIsLoading(true);
+      setErrors({});
       await signInWithGoogle();
       navigate("/dashboard");
     } catch (error) {
-      setErrors({ submit: "Google sign-in failed. Please try again." });
-      console.error(error);
+      console.error('Google sign-in error:', error);
+
+      // Provide specific error feedback
+      let errorMessage = 'Google sign-in failed. Please try again.';
+      if (error.code === 'auth/popup-closed-by-user') {
+        errorMessage = 'Sign-in cancelled. Please try again.';
+      } else if (error.code === 'auth/popup-blocked') {
+        errorMessage = 'Pop-up blocked. Please allow pop-ups and try again.';
+      } else if (error.code === 'auth/network-request-failed') {
+        errorMessage = 'Network error. Please check your connection.';
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+
+      setErrors({ submit: errorMessage });
     } finally {
       setIsLoading(false);
     }

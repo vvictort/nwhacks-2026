@@ -76,64 +76,31 @@ const ToyCard = ({ toy }) => {
         setCurrentImageIndex((prev) => (prev - 1 + images.length) % images.length);
     };
 
-    const categoryThemes = {
-        building_blocks: {
-            emoji: "🧱",
-            gradient: "from-orange-400 via-red-400 to-yellow-400",
-            bgGradient: "from-orange-50 to-red-50",
-            accent: "text-orange-600",
-            border: "border-orange-200",
-        },
-        plush: {
-            emoji: "🧸",
-            gradient: "from-amber-400 via-orange-300 to-yellow-300",
-            bgGradient: "from-amber-50 to-orange-50",
-            accent: "text-amber-600",
-            border: "border-amber-200",
-        },
-        vehicles: {
-            emoji: "🚗",
-            gradient: "from-blue-400 via-cyan-400 to-teal-400",
-            bgGradient: "from-blue-50 to-cyan-50",
-            accent: "text-blue-600",
-            border: "border-blue-200",
-        },
-        puzzles: {
-            emoji: "🧩",
-            gradient: "from-purple-400 via-pink-400 to-rose-400",
-            bgGradient: "from-purple-50 to-pink-50",
-            accent: "text-purple-600",
-            border: "border-purple-200",
-        },
-        educational: {
-            emoji: "📚",
-            gradient: "from-emerald-400 via-green-400 to-teal-400",
-            bgGradient: "from-emerald-50 to-green-50",
-            accent: "text-emerald-600",
-            border: "border-emerald-200",
-        },
-        outdoor: {
-            emoji: "⚽",
-            gradient: "from-green-400 via-lime-400 to-yellow-400",
-            bgGradient: "from-green-50 to-lime-50",
-            accent: "text-green-600",
-            border: "border-green-200",
-        },
-        electronic: {
-            emoji: "🎮",
-            gradient: "from-indigo-400 via-violet-400 to-purple-400",
-            bgGradient: "from-indigo-50 to-violet-50",
-            accent: "text-indigo-600",
-            border: "border-indigo-200",
-        },
-        arts_crafts: {
-            emoji: "🎨",
-            gradient: "from-pink-400 via-rose-400 to-red-400",
-            bgGradient: "from-pink-50 to-rose-50",
-            accent: "text-pink-600",
-            border: "border-pink-200",
-        },
+    // Consistent theme using neo-primary and neo-accent colors
+    const theme = {
+        gradient: "from-neo-primary-400 via-neo-primary-300 to-neo-accent-300",
+        bgGradient: "from-neo-bg-100 to-neo-bg-50",
+        accent: "text-neo-primary-700",
+        border: "border-neo-primary-100",
     };
+
+    // Category emoji mapping
+    const categoryEmojis = {
+        building_blocks: "🧱",
+        "building blocks": "🧱",
+        plush: "🧸",
+        vehicles: "🚗",
+        puzzles: "🧩",
+        educational: "📚",
+        outdoor: "⚽",
+        electronic: "🎮",
+        arts_crafts: "🎨",
+        "arts crafts": "🎨",
+    };
+
+    // Get emoji for category (normalize to lowercase for matching)
+    const normalizedCategory = toy.category?.toLowerCase()?.replace(/\s+/g, '_') || '';
+    const categoryEmoji = categoryEmojis[normalizedCategory] || categoryEmojis[toy.category?.toLowerCase()] || "🎁";
 
     const conditionConfig = {
         excellent: { label: "✨ Excellent", bg: "bg-emerald-100", text: "text-emerald-700", ring: "ring-emerald-300" },
@@ -142,29 +109,10 @@ const ToyCard = ({ toy }) => {
         fair: { label: "🔧 Fair", bg: "bg-orange-100", text: "text-orange-700", ring: "ring-orange-300" },
     };
 
-    const theme = categoryThemes[toy.category] || {
-        emoji: "🎁",
-        gradient: "from-neo-primary-400 via-neo-accent-400 to-neo-primary-300",
-        bgGradient: "from-neo-primary-50 to-neo-accent-50",
-        accent: "text-neo-primary-600",
-        border: "border-neo-primary-200",
-    };
-
     const condition = conditionConfig[toy.condition] || conditionConfig.good;
 
-    // Floating decorations based on category
-    const floatingEmojis = {
-        building_blocks: ["🔴", "🟡", "🟢"],
-        plush: ["💕", "🌟", "💫"],
-        vehicles: ["🏎️", "💨", "🛞"],
-        puzzles: ["🔮", "✨", "🎯"],
-        educational: ["📖", "✏️", "🎓"],
-        outdoor: ["🌳", "☀️", "🌈"],
-        electronic: ["⚡", "🔋", "💡"],
-        arts_crafts: ["🖌️", "✂️", "🎭"],
-    };
-
-    const decorations = floatingEmojis[toy.category] || ["⭐", "🎈", "🎀"];
+    // Floating decorations
+    const decorations = ["💜", "✨", "🎀"];
 
     return (
         <motion.div
@@ -204,7 +152,7 @@ const ToyCard = ({ toy }) => {
                                             key={currentImageIndex}
                                             src={`data:image/jpeg;base64,${images[currentImageIndex].imageData}`}
                                             alt={`${toy.toyName} - Image ${currentImageIndex + 1}`}
-                                            className="absolute inset-0 w-full h-full object-cover"
+                                            className="absolute inset-0 w-full h-full object-cover rounded-2xl"
                                             initial={{ opacity: 0 }}
                                             animate={{ opacity: 1 }}
                                             exit={{ opacity: 0 }}
@@ -239,8 +187,8 @@ const ToyCard = ({ toy }) => {
                                                             setCurrentImageIndex(idx);
                                                         }}
                                                         className={`w-2 h-2 rounded-full transition-all duration-200 ${idx === currentImageIndex
-                                                                ? "bg-white scale-125"
-                                                                : "bg-white/50 hover:bg-white/75"
+                                                            ? "bg-white scale-125"
+                                                            : "bg-white/50 hover:bg-white/75"
                                                             }`}
                                                     />
                                                 ))}
@@ -261,7 +209,7 @@ const ToyCard = ({ toy }) => {
                                         }}></div>
                                     </div>
                                     <span className="text-7xl filter drop-shadow-lg relative z-10 animate-pulse-subtle">
-                                        {theme.emoji}
+                                        {categoryEmoji}
                                     </span>
                                 </>
                             )}
@@ -309,7 +257,7 @@ const ToyCard = ({ toy }) => {
                         {/* Category & Date */}
                         <div className="flex items-center justify-between text-xs text-gray-500">
                             <span className={`flex items-center gap-1.5 font-medium ${theme.accent}`}>
-                                {theme.emoji} {toy.category?.replace(/_/g, ' ')}
+                                {categoryEmoji} {toy.category?.replace(/_/g, ' ')}
                             </span>
                             <span className="flex items-center gap-1">
                                 📅 {new Date(toy.createdAt).toLocaleDateString()}

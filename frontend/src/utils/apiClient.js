@@ -13,7 +13,11 @@ export const publicApiClient = {
         });
 
         if (!response.ok) {
-            throw new Error(`API Error: ${response.status}`);
+            const errorData = await response.json().catch(() => ({}));
+            const error = new Error(errorData.error || `API Error: ${response.status}`);
+            error.status = response.status;
+            error.data = errorData;
+            throw error;
         }
 
         return response.json();
@@ -51,7 +55,11 @@ export const apiClient = {
         });
 
         if (!response.ok) {
-            throw new Error(`API Error: ${response.status}`);
+            const errorData = await response.json().catch(() => ({}));
+            const error = new Error(errorData.error || `API Error: ${response.status}`);
+            error.status = response.status;
+            error.data = errorData;
+            throw error;
         }
 
         return response.json();
