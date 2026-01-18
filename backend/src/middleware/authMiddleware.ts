@@ -17,7 +17,6 @@ export const authenticateFirebaseToken = async (req: AuthRequest, res: Response,
     try {
         const user = await auth.verifyIdToken(idToken);
         req.user = user;
-        console.log('Authenticated user:', user.uid);
         return next();
     } catch (error) {
         console.error('Token verification failed:', error);
