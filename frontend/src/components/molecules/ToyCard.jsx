@@ -1,12 +1,81 @@
-import React, { useContext } from "react";
+import React, { useContext, useState, useEffect } from "react";
 // eslint-disable-next-line no-unused-vars
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../../context/AuthContext";
 
 const ToyCard = ({ toy }) => {
     const { user } = useContext(AuthContext);
     const navigate = useNavigate();
+    const [images, setImages] = useState([]);
+    const [currentImageIndex, setCurrentImageIndex] = useState(0);
+    const [isLoadingImages, setIsLoadingImages] = useState(true);
+
+    // Fetch images for this toy
+    useEffect(() => {
+        const fetchImages = async () => {
+            if (!toy.toyName) {
+                setIsLoadingImages(false);
+                return;
+            }
+
+            try {
+                setIsLoadingImages(true);
+                const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+                const response = await fetch(`${API_BASE_URL}/toys/${encodeURIComponent(toy.toyName)}/images`, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                });
+
+                // Treat 404 as no images (toy might not have images yet)
+                if (response.status === 404) {
+                    setImages([]);
+                    return;
+                }
+
+                if (!response.ok) {
+                    throw new Error(`API Error: ${response.status}`);
+                }
+
+                const data = await response.json();
+                if (data.images && data.images.length > 0) {
+                    setImages(data.images);
+                }
+            } catch (error) {
+                console.error("Failed to fetch toy images:", error);
+                // Don't throw, just leave images empty for fallback
+                setImages([]);
+            } finally {
+                setIsLoadingImages(false);
+            }
+        };
+
+        fetchImages();
+    }, [toy.toyName]);
+
+    // Auto-advance slideshow
+    useEffect(() => {
+        if (images.length <= 1) return;
+
+        const interval = setInterval(() => {
+            setCurrentImageIndex((prev) => (prev + 1) % images.length);
+        }, 3000);
+
+        return () => clearInterval(interval);
+    }, [images.length]);
+
+    const goToNextImage = (e) => {
+        e.stopPropagation();
+        setCurrentImageIndex((prev) => (prev + 1) % images.length);
+    };
+
+    const goToPrevImage = (e) => {
+        e.stopPropagation();
+        setCurrentImageIndex((prev) => (prev - 1 + images.length) % images.length);
+    };
+
     const categoryThemes = {
         building_blocks: {
             emoji: "🧱",
@@ -116,29 +185,100 @@ const ToyCard = ({ toy }) => {
                 </span>
 
                 <div className="p-5 h-full flex flex-col">
-                    {/* Toy Icon Area */}
+                    {/* Toy Image/Icon Area */}
                     <div className="relative mb-4">
                         <div
                             className={`w-full aspect-square rounded-2xl bg-gradient-to-br ${theme.gradient} flex items-center justify-center shadow-inner overflow-hidden group-hover:scale-105 transition-transform duration-300`}>
-                            {/* Pattern overlay */}
-                            <div className="absolute inset-0 opacity-20">
-                                <div className="absolute inset-0" style={{
-                                    backgroundImage: `radial-gradient(circle at 20% 20%, white 2px, transparent 2px),
-                                                      radial-gradient(circle at 80% 80%, white 2px, transparent 2px),
-                                                      radial-gradient(circle at 50% 50%, white 1px, transparent 1px)`,
-                                    backgroundSize: '30px 30px, 30px 30px, 15px 15px'
-                                }}></div>
-                            </div>
-                            <span className="text-7xl filter drop-shadow-lg relative z-10 animate-pulse-subtle">
-                                {theme.emoji}
-                            </span>
+
+                            {/* Image Slideshow or Fallback */}
+                            {isLoadingImages ? (
+                                // Loading state
+                                <div className="absolute inset-0 flex items-center justify-center bg-white/20">
+                                    <div className="w-8 h-8 border-3 border-white/30 border-t-white rounded-full animate-spin"></div>
+                                </div>
+                            ) : images.length > 0 ? (
+                                // Image slideshow
+                                <>
+                                    <AnimatePresence mode="wait">
+                                        <motion.img
+                                            key={currentImageIndex}
+                                            src={`data:image/jpeg;base64,${images[currentImageIndex].imageData}`}
+                                            alt={`${toy.toyName} - Image ${currentImageIndex + 1}`}
+                                            className="absolute inset-0 w-full h-full object-cover"
+                                            initial={{ opacity: 0 }}
+                                            animate={{ opacity: 1 }}
+                                            exit={{ opacity: 0 }}
+                                            transition={{ duration: 0.3 }}
+                                        />
+                                    </AnimatePresence>
+
+                                    {/* Slideshow controls - only show if multiple images */}
+                                    {images.length > 1 && (
+                                        <>
+                                            {/* Navigation buttons */}
+                                            <button
+                                                onClick={goToPrevImage}
+                                                className="absolute left-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-black/40 hover:bg-black/60 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-20"
+                                            >
+                                                ‹
+                                            </button>
+                                            <button
+                                                onClick={goToNextImage}
+                                                className="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-black/40 hover:bg-black/60 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-20"
+                                            >
+                                                ›
+                                            </button>
+
+                                            {/* Dots indicator */}
+                                            <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1.5 z-20">
+                                                {images.map((_, idx) => (
+                                                    <button
+                                                        key={idx}
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            setCurrentImageIndex(idx);
+                                                        }}
+                                                        className={`w-2 h-2 rounded-full transition-all duration-200 ${idx === currentImageIndex
+                                                                ? "bg-white scale-125"
+                                                                : "bg-white/50 hover:bg-white/75"
+                                                            }`}
+                                                    />
+                                                ))}
+                                            </div>
+                                        </>
+                                    )}
+                                </>
+                            ) : (
+                                // Fallback: Show emoji when no images
+                                <>
+                                    {/* Pattern overlay */}
+                                    <div className="absolute inset-0 opacity-20">
+                                        <div className="absolute inset-0" style={{
+                                            backgroundImage: `radial-gradient(circle at 20% 20%, white 2px, transparent 2px),
+                                                              radial-gradient(circle at 80% 80%, white 2px, transparent 2px),
+                                                              radial-gradient(circle at 50% 50%, white 1px, transparent 1px)`,
+                                            backgroundSize: '30px 30px, 30px 30px, 15px 15px'
+                                        }}></div>
+                                    </div>
+                                    <span className="text-7xl filter drop-shadow-lg relative z-10 animate-pulse-subtle">
+                                        {theme.emoji}
+                                    </span>
+                                </>
+                            )}
                         </div>
 
                         {/* Status Badge - Top Right */}
-                        <div className="absolute -top-2 -right-2 bg-white rounded-full px-3 py-1 shadow-md flex items-center gap-1.5">
+                        <div className="absolute -top-2 -right-2 bg-white rounded-full px-3 py-1 shadow-md flex items-center gap-1.5 z-10">
                             <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
                             <span className="text-xs font-medium text-gray-600 capitalize">{toy.status}</span>
                         </div>
+
+                        {/* Image count badge - only show if has images */}
+                        {images.length > 0 && (
+                            <div className="absolute -bottom-2 -left-2 bg-white rounded-full px-2 py-1 shadow-md flex items-center gap-1 z-10">
+                                <span className="text-xs font-medium text-gray-600">📷 {images.length}</span>
+                            </div>
+                        )}
                     </div>
 
                     {/* Toy Name */}

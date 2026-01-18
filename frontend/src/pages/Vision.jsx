@@ -16,7 +16,7 @@ const Vision = () => {
       <section className="grid md:grid-cols-2 gap-8">
         <NeuCard title="Sustainability">
           <p className="text-neo-bg-600">
-            Millions of toys end up in landfills every year. ToyJoy extends the lifespan of durable toys, reducing
+            Millions of toys end up in landfills every year. PlayItForward extends the lifespan of durable toys, reducing
             plastic waste and promoting a circular economy.
           </p>
         </NeuCard>
