@@ -78,15 +78,15 @@ const Home = () => {
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}>
-          Share the Joy, <br />
-          <span className="text-neo-accent-500">Spread the Love</span>
+          Play It Forward, <br />
+          <span className="text-neo-accent-500">Pass On The Joy</span>
         </motion.h1>
         <motion.p
           className="text-xl text-neo-bg-800 mb-10 max-w-2xl mx-auto relative z-20 font-medium italic drop-shadow-sm"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.3, duration: 0.6 }}>
-          Give your pre-loved toys a second chance significantly impacting families and children around the world.
+          Forward your pre-loved toys to families who need them most. Every toy passed on creates smiles and reduces waste.
         </motion.p>
         <motion.div
           className="flex justify-center gap-4 mb-12 relative z-20"
@@ -131,15 +131,15 @@ const Home = () => {
       <section id="impact-stats" className="py-16 scroll-mt-20">
         <h2 className="text-5xl font-bold font-display text-neo-primary-700 mb-4 text-center">Our Impact</h2>
         <p className="text-xl text-center text-neo-bg-600 max-w-2xl mx-auto mb-12 italic">
-          Connecting families through the power of play. Every toy shared reduces waste and spreads smiles across our
-          community.
+          Every toy forwarded creates a ripple of joy. Together, we're building a community where play never stops and
+          kindness keeps moving forward.
         </p>
         <div className="grid md:grid-cols-4 gap-8">
           <NeuCard className="text-center p-8">
             <div className="text-4xl md:text-5xl font-extrabold text-neo-primary-600 mb-2">
               <AnimatedCounter end={12500} duration={2.5} suffix="+" />
             </div>
-            <p className="text-neo-bg-700 font-medium">Toys Shared</p>
+            <p className="text-neo-bg-700 font-medium">Toys Forwarded</p>
           </NeuCard>
           <NeuCard className="text-center p-8">
             <div className="text-4xl md:text-5xl font-extrabold text-neo-accent-600 mb-2">
@@ -175,7 +175,7 @@ const Home = () => {
                     📸
                   </div>
                   <h3 className="text-2xl font-extrabold text-neo-bg-800 mb-3">1. List It</h3>
-                  <p className="text-neo-bg-600 italic text-base">Snap a photo and add a description.</p>
+                  <p className="text-neo-bg-600 italic text-base">Snap a photo and share the joy.</p>
                 </NeuCard>
               </div>
               <div className="flip-card-back">
@@ -198,16 +198,16 @@ const Home = () => {
                   <div className="w-20 h-20 rounded-full bg-neo-bg-100 shadow-neo-inset flex items-center justify-center mb-4 text-5xl">
                     📦
                   </div>
-                  <h3 className="text-2xl font-extrabold text-neo-bg-800 mb-3">2. Ship It</h3>
-                  <p className="text-neo-bg-600 italic text-base">Connect and ship with discounted labels.</p>
+                  <h3 className="text-2xl font-extrabold text-neo-bg-800 mb-3">2. Forward It</h3>
+                  <p className="text-neo-bg-600 italic text-base">Pass it on with discounted shipping.</p>
                 </NeuCard>
               </div>
               <div className="flip-card-back">
                 <NeuCard className="text-center flex flex-col items-center h-full justify-center bg-neo-accent-100 p-6">
-                  <h3 className="text-xl font-bold text-neo-accent-800 mb-4">More About Shipping</h3>
+                  <h3 className="text-xl font-bold text-neo-accent-800 mb-4">More About Forwarding</h3>
                   <p className="text-neo-accent-700 text-base px-2">
-                    Once a family requests your toy, we'll provide a discounted shipping label. Pack it up with care and
-                    drop it off at any carrier location. Simple and affordable!
+                    Once a family requests your toy, we'll provide a discounted shipping label. Pack it with love and
+                    forward it to its new home. Simple and affordable!
                   </p>
                 </NeuCard>
               </div>
@@ -223,7 +223,7 @@ const Home = () => {
                     😊
                   </div>
                   <h3 className="text-2xl font-extrabold text-neo-bg-800 mb-3">3. Enjoy It</h3>
-                  <p className="text-neo-bg-600 italic text-base">Bring smiles and reduce waste.</p>
+                  <p className="text-neo-bg-600 italic text-base">Watch the joy spread forward.</p>
                 </NeuCard>
               </div>
               <div className="flip-card-back">
@@ -268,9 +268,9 @@ const Home = () => {
           <div className="absolute bottom-0 left-0 -ml-16 -mb-16 w-64 h-64 bg-neo-accent-500/20 rounded-full blur-3xl group-hover:bg-neo-accent-500/30 transition-all duration-500" />
 
           <div className="relative z-10 flex flex-col items-center">
-            <h2 className="text-4xl md:text-5xl font-bold font-display text-white mb-6">Ready to Spread Joy? 🎁</h2>
+            <h2 className="text-4xl md:text-5xl font-bold font-display text-white mb-6">Ready to Play It Forward? 🎁</h2>
             <p className="text-neo-primary-50 text-xl mb-10 max-w-2xl mx-auto italic font-medium">
-              Join thousands of families making a difference. Give your toys a second life today!
+              Join thousands of families passing joy forward. Give your toys a new adventure today!
             </p>
             <Link to="/register">
               <NeuButton

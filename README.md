@@ -1,8 +1,8 @@
-# 🧸 ToyShare
+# 🧸 PlayItForward
 
 **Give pre-loved toys a second chance. Connect families. Reduce waste.**
 
-ToyShare is a community-driven platform that enables families to donate, browse, and request pre-loved toys. Built for nwHacks 2026, our mission is to reduce toy waste while spreading joy to children and families in need.
+PlayItForward is a community-driven platform that enables families to donate, browse, and request pre-loved toys. Built for nwHacks 2026, our mission is to reduce toy waste while spreading joy to children and families in need.
 
 ---
 
@@ -23,7 +23,7 @@ ToyShare is a community-driven platform that enables families to donate, browse,
 
 ## 🎯 Mission
 
-Every year, millions of toys end up in landfills. ToyShare aims to:
+Every year, millions of toys end up in landfills. PlayItForward aims to:
 
 - **Reduce Waste**: Give toys a second life instead of throwing them away
 - **Connect Communities**: Help families share resources and spread joy

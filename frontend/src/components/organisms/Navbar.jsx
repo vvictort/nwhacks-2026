@@ -1,5 +1,5 @@
 import React from "react";
-import { NavLink, useNavigate } from "react-router-dom";
+import { NavLink, Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../hooks/useAuth";
 import { cn } from "../../utils/cn";
 
@@ -25,7 +25,7 @@ const Navbar = () => {
   const userNavItems = [
     { path: "/dashboard", label: "Dashboard", icon: "🏠" },
     { path: "/browse", label: "Browse", icon: "🧸" },
-    { path: "/donate", label: "Donate", icon: "🎁" },
+    { path: "/donate", label: "Forward", icon: "🎁" },
     { path: "/contact", label: "Contact", icon: "✉️" },
   ];
 
@@ -35,6 +35,23 @@ const Navbar = () => {
     <nav className="fixed top-0 left-0 right-0 z-50 pt-6 px-4 flex justify-center">
       <div className="bg-neo-bg-100/95 backdrop-blur-xl rounded-full shadow-[0_8px_32px_rgba(0,0,0,0.12)] px-2 py-2 border border-neo-bg-200/50 w-auto max-w-[95vw]">
         <ul className="flex items-center justify-center gap-1 flex-wrap">
+          {/* Logo */}
+          <li>
+            <Link
+              to="/"
+              className="flex items-center gap-2 px-3 py-2 rounded-full transition-all duration-300 hover:bg-neo-bg-200 group">
+              <img
+                src="/logo.png"
+                alt="PlayItForward Logo"
+                className="w-8 h-8 object-contain group-hover:scale-110 transition-transform duration-300"
+              />
+              <span className="text-sm font-bold font-display text-neo-primary-700 hidden sm:inline">PlayItForward</span>
+            </Link>
+          </li>
+
+          {/* Divider */}
+          <li className="h-6 w-px bg-neo-bg-300 mx-1 hidden sm:block" />
+
           {navItems.map((item) => (
             <li key={item.path}>
               <NavLink

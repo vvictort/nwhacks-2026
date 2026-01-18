@@ -63,15 +63,15 @@ const Footer = () => {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
               {/* Brand Section */}
               <motion.div className="space-y-4" variants={itemVariants}>
-                <div className="flex items-center gap-2">
-                  <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-neo-primary-400 to-neo-primary-600 flex items-center justify-center shadow-lg">
-                    <span className="text-white font-bold text-xl">🎁</span>
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 rounded-2xl bg-white/10 flex items-center justify-center shadow-lg p-2">
+                    <img src="/logo.png" alt="PlayItForward Logo" className="w-full h-full object-contain" />
                   </div>
-                  <h3 className="text-white font-bold text-2xl">PlayItForward.</h3>
+                  <h3 className="text-white font-bold font-display text-2xl">PlayItForward</h3>
                 </div>
                 <p className="text-neo-bg-300 text-sm leading-relaxed max-w-xs">
-                  Get in touch to find out more about digital experiences to effectively reach and engage customers and
-                  target audiences.
+                  Pass it forward, spread the joy. Join our community of families giving pre-loved toys a second life
+                  and making children smile worldwide.
                 </p>
               </motion.div>
 

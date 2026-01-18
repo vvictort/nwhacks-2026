@@ -72,9 +72,24 @@ const ForgotPassword = () => {
         origin: { y: 0.6 },
         colors: ["#8c97c9", "#bb88a7", "#f5f2e8"],
       });
-    } catch (_error) {
-      setErrors({ submit: "An error occurred. Please try again." });
-      console.error(_error);
+    } catch (error) {
+      console.error('Password reset error:', error);
+
+      // Provide specific error feedback
+      let errorMessage = 'An error occurred. Please try again.';
+      if (error.message?.includes('fetch') || error.message?.includes('network')) {
+        errorMessage = 'Unable to connect. Please check your internet connection.';
+      } else if (error.code === 'auth/user-not-found') {
+        errorMessage = 'No account found with this email address.';
+      } else if (error.code === 'auth/invalid-email') {
+        errorMessage = 'Please enter a valid email address.';
+      } else if (error.code === 'auth/too-many-requests') {
+        errorMessage = 'Too many requests. Please try again later.';
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+
+      setErrors({ submit: errorMessage });
     } finally {
       setIsLoading(false);
     }
